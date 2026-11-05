@@ -1,0 +1,46 @@
+<<<<<<< HEAD
+# Entorno virtual (NO se sube — se recrea con requirements.txt)
+env_erp/
+venv/
+=======
+# Entorno virtual
+env_erp/
+venv/
+.venv/
+
+>>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Base de datos local
+db.sqlite3
+
+<<<<<<< HEAD
+# Variables de entorno (NUNCA subir)
+.env
+
+# Archivos estáticos colectados
+staticfiles/
+
+# Media subida por usuarios
+media/
+
+# VS Code
+.vscode/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+=======
+# Variables de entorno
+.env
+
+# Archivos estáticos
+staticfiles/
+
+# Media
+media/
+ 
+>>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9

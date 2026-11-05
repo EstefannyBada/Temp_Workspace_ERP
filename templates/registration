@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:center;
+            align-items:center;min-height:60vh;">
+    <div class="erp-card" style="width:100%;max-width:420px;">
+        <div class="erp-card-header" style="text-align:center;">
+            🔐 Iniciar sesión · ERP Django
+        </div>
+
+        <form method="post" style="margin-top:.5rem;">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="mb-4">
+                <label class="erp-label">Usuario</label>
+                <input type="text" name="username"
+                       class="erp-input"
+                       placeholder="Tu nombre de usuario"
+                       autofocus required>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+                <label class="erp-label">Contraseña</label>
+                <input type="password" name="password"
+                       class="erp-input"
+                       placeholder="••••••••" required>
+            </div>
+
+            <!-- Errores -->
+            {% if form.errors %}
+            <div class="erp-alert-danger" style="margin-bottom:1rem;">
+                Usuario o contraseña incorrectos.
+            </div>
+            {% endif %}
+
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <button type="submit" class="btn-erp-gold"
+                    style="width:100%;padding:.6rem;font-size:1rem;">
+                Entrar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

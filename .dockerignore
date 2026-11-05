@@ -1,0 +1,19 @@
+# .dockerignore — excluir archivos innecesarios de la imagen Docker
+env_erp/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.git/
+.gitignore
+db.sqlite3
+staticfiles/
+media/
+*.md
+.vscode/
+<<<<<<< HEAD
+tests/
+=======
+tests/
+>>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
