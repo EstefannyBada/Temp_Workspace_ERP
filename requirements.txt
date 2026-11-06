@@ -25,7 +25,7 @@ pillow==12.3.0
 platformdirs==4.11.12
 psycopg2-binary==2.9.9
 pycparser==3.12
-pydyf==0.13.0
+pydyf==0.11.0
 pyphen==0.18.1
 python-dateutil==2.9.0.post0
 python-discovery==1.6.1
@@ -38,7 +38,7 @@ typing_extensions==4.16.0
 tzdata==2026.4
 urllib3==2.8.0
 virtualenv==21.11.1
-weasyprint==60.2
+weasyprint==62.3
 webencodings==0.6.1
 whitenoise==6.12.0
 zopfli==0.4.3
