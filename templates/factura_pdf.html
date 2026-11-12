@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura {{ venta.pk }} - LIZ SYSTEM</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #222;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .factura {
+            max-width: 850px;
+            margin: auto;
+            padding: 40px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #c49a35;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .empresa {
+            color: #172554;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .subtitulo {
+            color: #777;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .numero {
+            text-align: right;
+        }
+
+        .numero h2 {
+            color: #b58b2a;
+            margin: 0;
+        }
+
+        .datos {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bloque {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fc;
+            border-left: 4px solid #c49a35;
+        }
+
+        .bloque h3 {
+            color: #172554;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #172554;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 22px;
+            font-weight: bold;
+            color: #b58b2a;
+            margin-top: 25px;
+        }
+
+        .pie {
+            text-align: center;
+            color: #777;
+            border-top: 1px solid #ddd;
+            margin-top: 45px;
+            padding-top: 15px;
+            font-size: 12px;
+        }
+
+        .acciones {
+            max-width: 850px;
+            margin: 20px auto;
+            text-align: right;
+        }
+
+        .boton {
+            background: #172554;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .factura {
+                border: none;
+                max-width: 100%;
+            }
+
+            .acciones {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="acciones">
+        <button class="boton" onclick="window.print()">
+            Imprimir / Guardar PDF
+        </button>
+    </div>
+
+    <main class="factura">
+
+        <header class="encabezado">
+            <div>
+                <div class="empresa">LIZ SYSTEM</div>
+                <div class="subtitulo">
+                    Sistema de gestión empresarial
+                </div>
+            </div>
+
+            <div class="numero">
+                <h2>FACTURA</h2>
+                <strong>No. {{ venta.pk|stringformat:"05d" }}</strong>
+            </div>
+        </header>
+
+        <section class="datos">
+            <div class="bloque">
+                <h3>Cliente</h3>
+                <p>{{ venta.cliente }}</p>
+            </div>
+
+            <div class="bloque">
+                <h3>Datos de venta</h3>
+                <p>
+                    <strong>Fecha:</strong>
+                    {{ venta.fecha|date:"d/m/Y H:i" }}
+                </p>
+                <p>
+                    <strong>Factura:</strong>
+                    {{ venta.pk }}
+                </p>
+            </div>
+        </section>
+
+        <h3>Detalle de productos</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio unitario</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for d in venta.detalles.all %}
+                <tr>
+                    <td>{{ d.producto.nombre }}</td>
+                    <td>${{ d.precio_unitario }}</td>
+                    <td>{{ d.cantidad }}</td>
+                    <td>${{ d.subtotal }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Sin productos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total">
+            TOTAL: ${{ venta.total }}
+        </div>
+
+        <footer class="pie">
+            <p>Gracias por su compra.</p>
+            <strong>LIZ SYSTEM</strong>
+        </footer>
+
+    </main>
+
+    <script>
+        window.addEventListener('load', function () {
+            window.print();
+        });
+    </script>
+
+</body>
+</html>
