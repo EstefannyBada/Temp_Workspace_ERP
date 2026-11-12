@@ -6,14 +6,7 @@ from productos.models import Categoria, Producto
 
 
 class ProductoFilter(django_filters.FilterSet):
-    """Filtro de productos para el catálogo público.
-
-    Permite filtrar por:
-        nombre:      contiene el texto (insensible a mayúsculas)
-        categoria:   categoría exacta (selector)
-        precio_min:  precio mayor o igual a este valor
-        precio_max:  precio menor o igual a este valor
-    """
+    """Filtro de productos para el catálogo público."""
 
     nombre = django_filters.CharFilter(
         field_name='nombre',
