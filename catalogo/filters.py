@@ -1,5 +1,5 @@
 # catalogo/filters.py
-"""Filtros para el catálogo público de productos — W13."""
+"""Filtros para el catálogo público de productos — W13 / W15."""
 import django_filters
 
 from productos.models import Categoria, Producto

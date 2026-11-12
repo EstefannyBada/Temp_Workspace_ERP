@@ -1,273 +1,167 @@
 {% extends "base.html" %}
-{% load django_filters %}
-{% block title %}Catálogo de Productos{% endblock %}
+{% block title %}Checkout · Proceso de pago{% endblock %}
+
+{% block extra_css %}
+<style>
+    #card-element {
+        background: var(--clr-surface);
+        border: 1.5px solid var(--clr-border);
+        border-radius: 8px;
+        padding: .75rem 1rem;
+        transition: border-color .2s;
+    }
+    #card-element.StripeElement--focus {
+        border-color: var(--clr-sky);
+        box-shadow: 0 0 0 3px rgba(74,144,217,.18);
+    }
+    #card-element.StripeElement--invalid {
+        border-color: var(--clr-danger);
+    }
+    #card-errors {
+        color: var(--clr-danger);
+        font-size: .85rem;
+        margin-top: .4rem;
+        min-height: 1.2rem;
+    }
+    #submit-btn:disabled {
+        opacity: .7;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="erp-page-title">
-    <h2>🛒 Catálogo</h2>
-    <span style="margin-left:auto;color:var(--clr-muted);font-size:.85rem;">
-        {{ page_obj.paginator.count }} producto(s) disponibles
-    </span>
-    <a href="{% url 'catalogo:carrito' %}"
-       class="btn-erp-gold"
-       style="position:relative;">
-        🛍️ Carrito
-        {% if carrito_total_items > 0 %}
-        <span style="position:absolute;top:-8px;right:-8px;
-                     background:var(--clr-danger);color:#FFF;
-                     border-radius:50%;width:20px;height:20px;
-                     font-size:.7rem;display:flex;align-items:center;
-                     justify-content:center;font-weight:700;">
-            {{ carrito_total_items }}
-        </span>
-        {% endif %}
-    </a>
+    <h2>💳 Proceso de pago</h2>
+    <a href="{% url 'catalogo:carrito' %}" class="btn-erp-primary ms-auto">← Volver al carrito</a>
 </div>
 
-<!-- Filtros -->
-<div class="erp-card" style="margin-bottom:1.5rem;">
-    <div class="erp-card-header">🔍 Filtrar productos</div>
-    <form method="get" style="margin-top:.5rem;">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="erp-label">Buscar por nombre</label>
-                {{ filtro.form.nombre }}
-            </div>
-            <div class="col-md-3">
-                <label class="erp-label">Categoría</label>
-                {{ filtro.form.categoria }}
-            </div>
-            <div class="col-md-2">
-                <label class="erp-label">Precio mín. ($)</label>
-                {{ filtro.form.precio_min }}
-            </div>
-            <div class="col-md-2">
-                <label class="erp-label">Precio máx. ($)</label>
-                {{ filtro.form.precio_max }}
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn-erp-primary w-100">
-                    Filtrar
-                </button>
-            </div>
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="erp-card">
+            <div class="erp-card-header">🛍️ Resumen de tu pedido</div>
+            <table style="width:100%;border-collapse:collapse;margin-top:.5rem;">
+                {% for item in items %}
+                <tr>
+                    <td style="padding:.4rem 0;font-size:.9rem;">
+                        {{ item.nombre }}
+                        <span style="color:var(--clr-muted);font-size:.82rem;">× {{ item.cantidad }}</span>
+                    </td>
+                    <td style="text-align:right;font-weight:600;font-size:.9rem;padding:.4rem 0;">
+                        ${{ item.subtotal }}
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr style="border-top:1px solid var(--clr-border);">
+                    <td style="padding:.5rem 0;color:var(--clr-muted);font-size:.88rem;">Subtotal</td>
+                    <td style="text-align:right;color:var(--clr-muted);font-size:.88rem;">${{ totales.subtotal }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:.3rem 0;color:var(--clr-muted);font-size:.88rem;">IVA ({{ totales.iva_pct }}%)</td>
+                    <td style="text-align:right;color:var(--clr-muted);font-size:.88rem;">${{ totales.iva_monto }}</td>
+                </tr>
+                <tr style="border-top:2px solid var(--clr-gold);">
+                    <td style="padding:.6rem 0;font-weight:700;font-size:1rem;">TOTAL</td>
+                    <td style="text-align:right;font-weight:700;font-size:1.2rem;color:var(--clr-gold);">${{ totales.total }}</td>
+                </tr>
+            </table>
         </div>
-        {% if request.GET %}
-        <div style="margin-top:.75rem;">
-            <a href="{% url 'catalogo:catalogo' %}"
-               style="color:var(--clr-muted);font-size:.85rem;">
-                ✕ Limpiar filtros
-            </a>
+
+        {% if pedido %}
+        <div class="erp-alert-info" style="margin-top:1rem;">
+            <strong>Pedido creado:</strong> {{ pedido.numero_pedido }}<br>
+            <small style="color:var(--clr-muted);">Ingresa los datos de tu tarjeta para confirmar la compra.</small>
         </div>
         {% endif %}
-    </form>
-</div>
+    </div>
 
-<!-- Tarjetas de productos -->
-{% if productos %}
-<div class="row g-3">
-    {% for prod in productos %}
-    <div class="col-md-3 col-sm-6">
-        <div class="erp-card"
-             style="height:100%;display:flex;flex-direction:column;">
+    <div class="col-md-7">
+        <div class="erp-card">
+            <div class="erp-card-header">🔒 Datos de pago</div>
 
-            <!-- Imagen del producto -->
-            {% if prod.imagen %}
-            <img src="{{ prod.imagen.url }}"
-                 alt="{{ prod.nombre }}"
-                 style="width:100%;height:160px;object-fit:cover;
-                        border-radius:8px 8px 0 0;margin:-1.5rem -1.5rem 1rem;">
+            {% if client_secret %}
+            <p style="color:var(--clr-muted);font-size:.85rem;margin-bottom:1rem;">
+                Tus datos de pago son procesados de forma segura por Stripe. Nunca pasan por nuestros servidores.
+            </p>
+
+            <div class="mb-4">
+                <label class="erp-label">Número de tarjeta</label>
+                <div id="card-element"></div>
+                <div id="card-errors" role="alert"></div>
+            </div>
+
+            <button id="submit-btn" class="btn-erp-gold" style="width:100%;padding:.6rem;font-size:1rem;">
+                🔐 Confirmar pago de ${{ totales.total }}
+            </button>
+
+            <p style="text-align:center;margin-top:.75rem;color:var(--clr-muted);font-size:.78rem;">
+                Tarjeta de prueba: <code>4242 4242 4242 4242</code> · cualquier fecha futura · cualquier CVC
+            </p>
+
             {% else %}
-            <div style="width:calc(100% + 3rem);height:120px;
-                        margin:-1.5rem -1.5rem 1rem;
-                        background:var(--clr-ice);
-                        border-radius:8px 8px 0 0;
-                        display:flex;align-items:center;
-                        justify-content:center;
-                        color:var(--clr-muted);font-size:2.5rem;">
-                📦
-            </div>
-            {% endif %}
-
-            <!-- Nombre y categoría -->
-            <div style="flex:1;">
-                <p style="font-weight:600;color:var(--clr-navy);
-                          margin:0 0 .25rem;font-size:.95rem;">
-                    {{ prod.nombre }}
-                </p>
-                <p style="font-size:.8rem;color:var(--clr-muted);margin:0;">
-                    {{ prod.categoria }}
-                </p>
-            </div>
-
-            <!-- Precio y stock -->
-            <div style="margin-top:.75rem;padding-top:.75rem;
-                        border-top:1px solid var(--clr-border);">
-                <p style="font-size:1.2rem;font-weight:700;
-                          color:var(--clr-gold);margin:0;">
-                    ${{ prod.precio }}
-                </p>
-                {% if prod.stock < 5 %}
-                <span class="badge-erp-inactive" style="font-size:.72rem;">
-                    Pocas unidades: {{ prod.stock }}
-                </span>
-                {% else %}
-                <span class="badge-erp-active" style="font-size:.72rem;">
-                    En stock: {{ prod.stock }}
-                </span>
-                {% endif %}
-            </div>
-
-            <!-- Botón agregar al carrito -->
-            <form method="post"
-                  action="{% url 'catalogo:agregar' prod.pk %}"
-                  style="margin-top:.75rem;">
+            <p style="margin-bottom:1.5rem;color:var(--clr-muted);">
+                Haz clic en el siguiente botón para generar tu orden de pedido e introducir los datos de tu tarjeta.
+            </p>
+            <form method="post">
                 {% csrf_token %}
-                <input type="hidden" name="cantidad" value="1">
-                <input type="hidden" name="next"
-                       value="{{ request.get_full_path }}">
-                <button type="submit"
-                        class="btn-erp-primary"
-                        style="width:100%;">
-                    + Agregar al carrito
+                <button type="submit" class="btn-erp-gold" style="width:100%;padding:.6rem;font-size:1rem;">
+                    Proceder al pago →
                 </button>
             </form>
+            {% endif %}
         </div>
     </div>
-    {% endfor %}
 </div>
-
-<!-- Paginación -->
-{% if is_paginated %}
-<div style="display:flex;gap:.5rem;justify-content:center;margin-top:2rem;">
-    {% if page_obj.has_previous %}
-        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}"
-           class="btn-erp-primary btn-erp-sm">← Anterior</a>
-    {% endif %}
-    <span style="padding:.35rem .75rem;color:var(--clr-muted);font-size:.88rem;">
-        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-    </span>
-    {% if page_obj.has_next %}
-        <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}"
-           class="btn-erp-primary btn-erp-sm">Siguiente →</a>
-    {% endif %}
-</div>
-{% endif %}
-
-{% else %}
-<div class="erp-alert-info" style="margin-top:1.5rem;">
-    No se encontraron productos con los filtros seleccionados.
-    <a href="{% url 'catalogo:catalogo' %}" style="color:var(--clr-sky);">
-        Ver todos los productos
-    </a>
-</div>
-{% endif %}
 {% endblock %}
-7. catalogo/templates/catalogo/carrito.html
-Plantilla para revisar la lista de compras, ajustar cantidades, vaciar el carrito o continuar al pago [Guia_Lab_W13.md].
-{% extends "base.html" %}
-{% block title %}Mi carrito{% endblock %}
 
-{% block content %}
-<div class="erp-page-title">
-    <h2>🛍️ Mi carrito</h2>
-    <a href="{% url 'catalogo:catalogo' %}"
-       class="btn-erp-primary ms-auto">← Seguir comprando</a>
-</div>
+{% block extra_js %}
+{% if client_secret %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+(function () {
+    'use strict';
+    const stripe       = Stripe('{{ publishable_key }}');
+    const elements     = stripe.elements();
+    const clientSecret = '{{ client_secret }}';
 
-{% if items %}
-<div class="erp-card">
-    <table class="erp-table">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th class="text-end">Precio unit.</th>
-                <th style="width:130px;text-align:center;">Cantidad</th>
-                <th class="text-end">Subtotal</th>
-                <th style="width:60px;"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td style="font-weight:600;">{{ item.nombre }}</td>
-                <td style="text-align:right;">${{ item.precio }}</td>
-                <td style="text-align:center;">
-                    <form method="post"
-                          action="{% url 'catalogo:actualizar' item.prod_id %}"
-                          style="display:flex;align-items:center;gap:.25rem;justify-content:center;">
-                        {% csrf_token %}
-                        <input type="number"
-                               name="cantidad"
-                               value="{{ item.cantidad }}"
-                               min="0" max="99"
-                               class="erp-input"
-                               style="width:60px;text-align:center;padding:.3rem .5rem;">
-                        <button type="submit"
-                                class="btn-erp-primary btn-erp-sm">
-                            ↻
-                        </button>
-                    </form>
-                </td>
-                <td style="text-align:right;font-weight:600;color:var(--clr-gold);">
-                    ${{ item.subtotal }}
-                </td>
-                <td style="text-align:center;">
-                    <form method="post"
-                          action="{% url 'catalogo:remover' item.prod_id %}">
-                        {% csrf_token %}
-                        <button type="submit"
-                                class="btn-erp-danger btn-erp-sm"
-                                title="Eliminar">✕</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr style="background:var(--clr-cream);">
-                <td colspan="3" style="padding:.75rem 1rem;font-weight:600;text-align:right;">
-                    Total del carrito:
-                </td>
-                <td style="padding:.75rem 1rem;font-weight:700;font-size:1.2rem;text-align:right;color:var(--clr-gold);">
-                    ${{ total }}
-                </td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
+    const card = elements.create('card', {
+        style: {
+            base: {
+                fontFamily: "'Inter', 'Segoe UI', sans-serif",
+                fontSize: '15px',
+                color: '#1A1A2E',
+                '::placeholder': { color: '#8AA0B8' },
+            },
+            invalid: { color: '#C0392B', iconColor: '#C0392B' },
+        },
+    });
+    card.mount('#card-element');
 
-<div class="d-flex gap-2 mt-3 flex-wrap">
-    <form method="post" action="{% url 'catalogo:vaciar' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn-erp-danger"
-                onclick="return confirm('¿Vaciar el carrito?')">
-            🗑️ Vaciar carrito
-        </button>
-    </form>
+    card.on('change', function (event) {
+        const errorDiv = document.getElementById('card-errors');
+        errorDiv.textContent = event.error ? event.error.message : '';
+    });
 
-    {% if user.is_authenticated %}
-    <a href="{% url 'catalogo:checkout' %}"
-       class="btn-erp-gold" style="font-size:1rem;padding:.55rem 1.5rem;">
-        💳 Proceder al pago →
-    </a>
-    {% else %}
-    <a href="{% url 'account_login' %}?next={% url 'catalogo:checkout' %}"
-       class="btn-erp-gold">
-        🔐 Inicia sesión para pagar
-    </a>
-    {% endif %}
-</div>
+    const btn = document.getElementById('submit-btn');
+    btn.addEventListener('click', async function () {
+        btn.disabled    = true;
+        btn.textContent = '⏳ Procesando…';
 
-{% else %}
-<div class="erp-card" style="text-align:center;padding:3rem;">
-    <p style="font-size:3rem;margin:0;">🛒</p>
-    <p style="color:var(--clr-muted);margin:.5rem 0 1.5rem;">
-        Tu carrito está vacío.
-    </p>
-    <a href="{% url 'catalogo:catalogo' %}" class="btn-erp-gold">
-        Ver catálogo de productos
-    </a>
-</div>
+        const { error, paymentIntent } = await stripe.confirmCardPayment(
+            clientSecret,
+            { payment_method: { card: card } }
+        );
+
+        if (error) {
+            document.getElementById('card-errors').textContent = error.message;
+            btn.disabled    = false;
+            btn.textContent = '🔐 Confirmar pago de ${{ totales.total }}';
+        } else if (paymentIntent.status === 'succeeded') {
+            const pedidoId = '{{ pedido.pk }}';
+            window.location.href = `/catalogo/pago-exitoso/${pedidoId}/`;
+        }
+    });
+})();
+</script>
 {% endif %}
 {% endblock %}

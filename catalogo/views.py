@@ -1,5 +1,5 @@
 # catalogo/views.py
-"""Vistas para el catálogo público, carrito de compras, checkout con Stripe y webhooks."""
+"""Vistas para el catálogo, carrito en sesión, checkout Stripe y webhooks — W15 Completo."""
 from decimal import Decimal
 import logging
 from typing import Any
@@ -25,16 +25,16 @@ from .checkout_utils import (
 )
 from .filters import ProductoFilter
 
-# Configurar API Key de Stripe desde settings
+# Configurar API Key de Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 logger = logging.getLogger(__name__)
 
 
-# ── CATÁLOGO ───────────────────────────────────────────────────────────────
+# ── CATÁLOGO PÚBLICO ────────────────────────────────────────────────────────
 
 class CatalogoView(ListView):
-    """Catálogo público de productos con filtros."""
+    """Catálogo público de productos activos con filtros."""
 
     model               = Producto
     template_name       = 'catalogo/catalogo.html'
@@ -42,7 +42,7 @@ class CatalogoView(ListView):
     paginate_by         = 12
 
     def get_queryset(self):
-        """Filtra productos activos aplicando los filtros del request."""
+        """Filtra productos activos aplicando el filtro del request."""
         qs = (
             Producto.objects
             .select_related('categoria', 'proveedor')
@@ -53,14 +53,14 @@ class CatalogoView(ListView):
         return self.filtro.qs
 
     def get_context_data(self, **kwargs):
-        """Agrega el objeto filtro al contexto para renderizar el formulario."""
+        """Pasa el formulario de filtro al contexto."""
         ctx = super().get_context_data(**kwargs)
         ctx['filtro']     = self.filtro
         ctx['categorias'] = self.filtro.form.fields['categoria'].queryset
         return ctx
 
 
-# ── CARRITO DE COMPRAS ──────────────────────────────────────────────────────
+# ── CARRITO EN SESIÓN ──────────────────────────────────────────────────────
 
 def _obtener_carrito(request: object) -> dict:
     """Obtiene el carrito de la sesión o crea uno vacío."""
@@ -68,13 +68,13 @@ def _obtener_carrito(request: object) -> dict:
 
 
 def _guardar_carrito(request: object, carrito: dict) -> None:
-    """Guarda el carrito en la sesión y marca como modificado."""
+    """Guarda el carrito en la sesión y marca la sesión como modificada."""
     request.session['carrito'] = carrito
     request.session.modified   = True
 
 
 def ver_carrito(request):
-    """Muestra el contenido del carrito con el total calculado."""
+    """Muestra el contenido del carrito con subtotales calculados."""
     carrito = _obtener_carrito(request)
 
     items = []
@@ -101,7 +101,7 @@ def ver_carrito(request):
 
 
 def agregar_al_carrito(request, producto_id: int):
-    """Agrega un producto al carrito o incrementa su cantidad (con lectura defensiva de imagen)."""
+    """Agrega un producto al carrito (manejo defensivo de imagen)."""
     if request.method != 'POST':
         return redirect('catalogo:catalogo')
 
@@ -111,7 +111,7 @@ def agregar_al_carrito(request, producto_id: int):
     clave    = str(producto_id)
     cantidad = int(request.POST.get('cantidad', 1))
 
-    # Lectura defensiva del atributo imagen por si no existe en el modelo
+    # Lectura defensiva por si el modelo no tiene la propiedad 'imagen'
     imagen_obj = getattr(producto, 'imagen', None)
     imagen_url = imagen_obj.name if (imagen_obj and hasattr(imagen_obj, 'name')) else None
 
@@ -126,10 +126,7 @@ def agregar_al_carrito(request, producto_id: int):
         }
 
     _guardar_carrito(request, carrito)
-    messages.success(
-        request,
-        f'"{producto.nombre}" agregado al carrito.'
-    )
+    messages.success(request, f'"{producto.nombre}" agregado al carrito.')
 
     next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
     return redirect(next_url or 'catalogo:catalogo')
@@ -152,7 +149,7 @@ def remover_del_carrito(request, producto_id: int):
 
 
 def actualizar_cantidad(request, producto_id: int):
-    """Actualiza la cantidad de un producto en el carrito."""
+    """Actualiza la cantidad de un item en el carrito."""
     if request.method != 'POST':
         return redirect('catalogo:carrito')
 
@@ -171,18 +168,18 @@ def actualizar_cantidad(request, producto_id: int):
 
 
 def vaciar_carrito(request):
-    """Elimina todos los productos del carrito."""
+    """Limpia la sesión del carrito."""
     if request.method == 'POST':
         _guardar_carrito(request, {})
         messages.info(request, 'Carrito vaciado.')
     return redirect('catalogo:carrito')
 
 
-# ── CHECKOUT Y PAGOS (STRIPE) ──────────────────────────────────────────────
+# ── CHECKOUT Y STRIPE (W14 / W15) ──────────────────────────────────────────
 
 @login_required
 def checkout(request):
-    """Proceso de pago: muestra resumen y crea PaymentIntent de Stripe."""
+    """Proceso de pago: crea Pedido con items_snapshot y PaymentIntent de Stripe."""
     carrito = _obtener_carrito(request)
     if not carrito:
         messages.warning(request, 'Tu carrito está vacío.')
@@ -191,7 +188,7 @@ def checkout(request):
     totales         = calcular_totales(carrito)
     publishable_key = settings.STRIPE_PUBLISHABLE_KEY
 
-    # Prepara la lista de items con subtotales precalculados exactos en Python
+    # Prepara la lista de items para la plantilla
     items = []
     for prod_id, datos in carrito.items():
         precio   = Decimal(str(datos['precio']))
@@ -206,21 +203,32 @@ def checkout(request):
 
     if request.method == 'POST':
         try:
-            # 1. Vincular usuario autenticado con Cliente del ERP
+            # 1. Vincular usuario con Cliente ERP
             cliente = obtener_o_crear_cliente(request.user)
 
-            # 2. Crear el Pedido en estado "pendiente"
+            # 2. Construir snapshot del carrito (W15)
+            snapshot = [
+                {
+                    'producto_id': int(prod_id),
+                    'nombre':      datos['nombre'],
+                    'cantidad':    int(datos['cantidad']),
+                    'precio':      str(datos['precio']),
+                }
+                for prod_id, datos in carrito.items()
+            ]
+
+            # 3. Crear el Pedido en BD
             numero = generar_numero_pedido()
             pedido = Pedido.objects.create(
-                numero_pedido = numero,
-                cliente       = cliente,
-                estado        = 'pendiente',
-                total_pagado  = totales['total'],
+                numero_pedido  = numero,
+                cliente        = cliente,
+                estado         = 'pendiente',
+                total_pagado   = totales['total'],
+                items_snapshot = snapshot,
             )
 
-            # 3. Crear PaymentIntent en Stripe (monto en centavos)
+            # 4. Crear PaymentIntent en Stripe
             monto_centavos = int(totales['total'] * 100)
-
             intent = stripe.PaymentIntent.create(
                 amount          = monto_centavos,
                 currency        = 'mxn',
@@ -232,7 +240,7 @@ def checkout(request):
                 idempotency_key = f'pedido-{pedido.pk}',
             )
 
-            # 4. Retornar client_secret al template para renderizar Stripe.js Card Element
+            # 5. Renderizar checkout con client_secret
             return render(request, 'catalogo/checkout.html', {
                 'items':           items,
                 'carrito':         carrito,
@@ -244,21 +252,15 @@ def checkout(request):
 
         except stripe.error.StripeError as exc:
             logger.error(f'Error de Stripe durante el checkout: {exc}')
-            messages.error(
-                request,
-                f'Error al conectar con Stripe: {exc.user_message or str(exc)}'
-            )
+            messages.error(request, f'Error al conectar con Stripe: {exc.user_message or str(exc)}')
             return redirect('catalogo:pago_error')
 
         except Exception as exc:
             logger.error(f'Error inesperado en checkout: {exc}')
-            messages.error(
-                request,
-                f'Error inesperado en el proceso de pago: {exc}'
-            )
+            messages.error(request, f'Error inesperado en el proceso de pago: {exc}')
             return redirect('catalogo:pago_error')
 
-    # GET — sólo mostrar el resumen inicial con botón de proceder al pago
+    # GET — Resumen inicial
     return render(request, 'catalogo/checkout.html', {
         'items':           items,
         'carrito':         carrito,
@@ -269,15 +271,14 @@ def checkout(request):
 
 
 def pago_exitoso(request, pedido_id: int):
-    """Vista de confirmación post-pago exitoso."""
+    """Confirmación post-pago exitoso y vaciado de carrito."""
     pedido = get_object_or_404(Pedido, pk=pedido_id)
 
-    # Vaciar el carrito al confirmar el pago
+    # Vaciar el carrito de la sesión
     _guardar_carrito(request, {})
     messages.success(
         request,
-        f'¡Pago exitoso! Tu pedido {pedido.numero_pedido} '
-        f'está confirmado. Total: ${pedido.total_pagado}'
+        f'¡Pago exitoso! Tu pedido {pedido.numero_pedido} está confirmado. Total: ${pedido.total_pagado}'
     )
 
     return render(request, 'catalogo/pago_exitoso.html', {
@@ -286,16 +287,16 @@ def pago_exitoso(request, pedido_id: int):
 
 
 def pago_error(request):
-    """Vista de error de pago — muestra mensaje y permite reintentar."""
+    """Vista de error de pago."""
     return render(request, 'catalogo/pago_error.html')
 
 
-# ── STRIPE WEBHOOKS (W15) ──────────────────────────────────────────────────
+# ── STRIPE WEBHOOKS CON ATOMIC STOCK DECREMENT (W15) ───────────────────────
 
 @csrf_exempt
 @require_POST
 def stripe_webhook(request) -> HttpResponse:
-    """Recibe y procesa eventos asíncronos de Stripe."""
+    """Recibe y procesa los eventos asíncronos de Stripe."""
     payload    = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
 
@@ -317,10 +318,8 @@ def stripe_webhook(request) -> HttpResponse:
 
     if tipo == 'payment_intent.succeeded':
         _manejar_pago_exitoso(event['data']['object'])
-
     elif tipo == 'payment_intent.payment_failed':
         _manejar_pago_fallido(event['data']['object'])
-
     else:
         logger.debug(f'Evento ignorado: {tipo}')
 
@@ -328,7 +327,7 @@ def stripe_webhook(request) -> HttpResponse:
 
 
 def _manejar_pago_exitoso(payment_intent: dict) -> None:
-    """Procesa un pago confirmado por Stripe."""
+    """Actualiza Pedido a 'pagado' y descuenta stock vía items_snapshot."""
     pedido_id = _extraer_pedido_id(payment_intent)
     if pedido_id is None:
         return
@@ -345,11 +344,11 @@ def _manejar_pago_exitoso(payment_intent: dict) -> None:
         logger.info(f'Pedido {pedido.numero_pedido} actualizado a "pagado".')
         _descontar_stock(pedido)
     else:
-        logger.info(f'Pedido {pedido.numero_pedido} ya estaba pagado — idempotente.')
+        logger.info(f'Pedido {pedido.numero_pedido} ya estaba pagado — operación idempotente.')
 
 
 def _manejar_pago_fallido(payment_intent: dict) -> None:
-    """Procesa un pago fallido o rechazado."""
+    """Cancela un pedido cuando el cobro falla."""
     pedido_id = _extraer_pedido_id(payment_intent)
     if pedido_id is None:
         return
@@ -383,8 +382,8 @@ def _extraer_pedido_id(payment_intent: dict) -> int | None:
 
 
 def _descontar_stock(pedido: Pedido) -> None:
-    """Descuenta el stock de los productos usando expresiones F() atómicas."""
-    items = pedido.items_snapshot or []
+    """Descuenta el stock usando expresiones F() atómicas en SQL."""
+    items = getattr(pedido, 'items_snapshot', []) or []
 
     for item in items:
         producto_id = item.get('producto_id')

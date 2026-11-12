@@ -1,10 +1,10 @@
 # catalogo/context_processors.py
-"""Context processors de la app catalogo — W13."""
+"""Context processor para inyectar datos del carrito en templates globales — W13."""
 from typing import Any
 
 
 def carrito_info(request) -> dict[str, Any]:
-    """Calcula el total de items en el carrito y lo inyecta globalmente."""
+    """Calcula el total de items en el carrito y los inyecta en la navbar."""
     carrito = request.session.get('carrito', {})
 
     total_items     = sum(
