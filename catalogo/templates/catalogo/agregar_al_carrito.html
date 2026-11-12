@@ -29,24 +29,21 @@
                 <td style="text-align:center;">
                     <form method="post"
                           action="{% url 'catalogo:actualizar' item.prod_id %}"
-                          style="display:flex;align-items:center;
-                                 gap:.25rem;justify-content:center;">
+                          style="display:flex;align-items:center;gap:.25rem;justify-content:center;">
                         {% csrf_token %}
                         <input type="number"
                                name="cantidad"
                                value="{{ item.cantidad }}"
                                min="0" max="99"
                                class="erp-input"
-                               style="width:60px;text-align:center;
-                                      padding:.3rem .5rem;">
+                               style="width:60px;text-align:center;padding:.3rem .5rem;">
                         <button type="submit"
                                 class="btn-erp-primary btn-erp-sm">
                             ↻
                         </button>
                     </form>
                 </td>
-                <td style="text-align:right;font-weight:600;
-                           color:var(--clr-gold);">
+                <td style="text-align:right;font-weight:600;color:var(--clr-gold);">
                     ${{ item.subtotal }}
                 </td>
                 <!-- Remover item -->
@@ -64,13 +61,10 @@
         </tbody>
         <tfoot>
             <tr style="background:var(--clr-cream);">
-                <td colspan="3" style="padding:.75rem 1rem;
-                    font-weight:600;text-align:right;">
+                <td colspan="3" style="padding:.75rem 1rem;font-weight:600;text-align:right;">
                     Total del carrito:
                 </td>
-                <td style="padding:.75rem 1rem;font-weight:700;
-                           font-size:1.2rem;text-align:right;
-                           color:var(--clr-gold);">
+                <td style="padding:.75rem 1rem;font-weight:700;font-size:1.2rem;text-align:right;color:var(--clr-gold);">
                     ${{ total }}
                 </td>
                 <td></td>
@@ -90,7 +84,7 @@
         </button>
     </form>
 
-    <!-- Proceder al checkout — W14 lo implementará -->
+    <!-- Proceder al checkout -->
     {% if user.is_authenticated %}
     <a href="{% url 'catalogo:checkout' %}"
        class="btn-erp-gold" style="font-size:1rem;padding:.55rem 1.5rem;">
