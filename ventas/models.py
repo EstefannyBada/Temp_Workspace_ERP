@@ -1,7 +1,8 @@
+
 """Modelos de la app ventas — Espiral 2 W05.
 
 Modelos implementados:
-    Venta         — encabezado de una venta interna.
+    Venta        — encabezado de una venta interna.
     DetalleVenta — línea de producto dentro de una venta.
     Pedido       — orden de compra del canal e-commerce (Espiral 5).
 
@@ -11,6 +12,7 @@ Decisiones de diseño aplicadas:
     D-05: DetalleVenta.producto → PROTECT.
     D-06: DetalleVenta.precio_unitario → almacenado (histórico).
 """
+
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
@@ -32,12 +34,13 @@ class Venta(models.Model):
 
     cliente = models.ForeignKey(
         Cliente,
-        on_delete=models.PROTECT,      # D-03: no borrar cliente con ventas
+        on_delete=models.PROTECT,
         related_name='ventas',
-        verbose_name='Cliente'
+        verbose_name='Cliente',
     )
     fecha = models.DateTimeField(
-        auto_now_add=True, verbose_name='Fecha'
+        auto_now_add=True,
+        verbose_name='Fecha',
     )
 
     class Meta:
@@ -50,62 +53,43 @@ class Venta(models.Model):
 
     @property
     def total(self) -> Decimal:
-        """Total de la venta: suma de subtotales de cada línea.
-
-        Decisión D-04: no se almacena en BD para cumplir 3FN.
-        Para dashboards con muchos registros, usar:
-            Venta.objects.annotate(total=Sum(...))
-
-        Returns:
-            Decimal: suma de (cantidad × precio_unitario) por línea.
-        """
+        """Calcula el total sumando los subtotales de las líneas."""
         return sum(
-            (d.subtotal for d in self.detalles.all()),
-            Decimal('0.00')        # valor inicial para venta sin detalles
+            (detalle.subtotal for detalle in self.detalles.all()),
+            Decimal('0.00'),
         )
 
 
-# ── DetalleVenta ───────────────────────────────────────────────────────────
+# ── DetalleVenta ──────────────────────────────────────────────────────────
 
 class DetalleVenta(models.Model):
     """Línea de producto dentro de una venta.
 
-    precio_unitario se almacena (D-06) porque el precio del producto
-    puede cambiar después de la venta; se necesita el histórico exacto.
+    precio_unitario se almacena como histórico porque el precio
+    del producto puede cambiar después de la venta.
     """
 
     venta = models.ForeignKey(
         Venta,
-        on_delete=models.CASCADE,      # borrar Venta → borrar sus líneas
+        on_delete=models.CASCADE,
         related_name='detalles',
-        verbose_name='Venta'
+        verbose_name='Venta',
     )
     producto = models.ForeignKey(
         Producto,
-        on_delete=models.PROTECT,      # D-05: no borrar producto con ventas
+        on_delete=models.PROTECT,
         related_name='detalles_venta',
-        verbose_name='Producto'
+        verbose_name='Producto',
     )
     cantidad = models.PositiveIntegerField(
-        verbose_name='Cantidad'
+        verbose_name='Cantidad',
     )
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name='Precio unitario',
-        help_text='Precio al momento de la venta (D-06).'
+        help_text='Precio al momento de la venta (D-06).',
     )
-
-    def clean(self) -> None:
-        """Validación de negocio para línea de detalle.
-
-        Raises:
-            ValidationError: si cantidad < 1.
-        """
-        if self.cantidad is not None and self.cantidad < 1:
-            raise ValidationError(
-                {'cantidad': 'La cantidad debe ser al menos 1.'}
-            )
 
     class Meta:
         verbose_name = 'Detalle de venta'
@@ -116,60 +100,62 @@ class DetalleVenta(models.Model):
 
     @property
     def subtotal(self) -> Decimal:
-        """Subtotal de la línea: cantidad × precio_unitario."""
+        """Calcula el subtotal de la línea."""
         return self.precio_unitario * self.cantidad
 
     def save(self, *args, **kwargs) -> None:
-        """Captura el precio actual del producto si no se especificó.
-
-        Uso de 'is None' (not 'not') porque Decimal('0.00') es falsy
-        pero es un valor válido que NO debe sobreescribirse.
-        """
+        """Captura el precio actual si no se especificó uno."""
         if self.precio_unitario is None:
             self.precio_unitario = self.producto.precio
         super().save(*args, **kwargs)
 
+    def clean(self) -> None:
+        """Valida que la cantidad sea al menos 1."""
+        if self.cantidad is not None and self.cantidad < 1:
+            raise ValidationError({
+                'cantidad': 'La cantidad debe ser al menos 1.',
+            })
 
-# ── Pedido ─────────────────────────────────────────────────────────────────
+
+# ── Pedido ────────────────────────────────────────────────────────────────
 
 class Pedido(models.Model):
-    """Orden de compra del canal e-commerce.
-
-    Nota: se implementa en la Espiral 5 (W13–W15).
-    Se define aquí para completar el esquema ER aprobado.
-    """
+    """Orden de compra del canal e-commerce (Espiral 5)."""
 
     ESTADO_CHOICES = [
-        ('pendiente',  'Pendiente de pago'),
-        ('pagado',     'Pago confirmado'),
-        ('enviado',    'En camino'),
-        ('entregado',  'Entregado'),
-        ('cancelado',  'Cancelado'),
+        ('pendiente', 'Pendiente de pago'),
+        ('pagado', 'Pago confirmado'),
+        ('enviado', 'En camino'),
+        ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
     ]
 
     numero_pedido = models.CharField(
         max_length=20,
         unique=True,
         verbose_name='Número de pedido',
-        help_text='Formato sugerido: PED-YYYY-NNNN'
+        help_text='Formato sugerido: PED-YYYY-NNNN',
     )
     cliente = models.ForeignKey(
         Cliente,
         on_delete=models.PROTECT,
         related_name='pedidos',
-        verbose_name='Cliente'
+        verbose_name='Cliente',
     )
     estado = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
         default='pendiente',
-        verbose_name='Estado'
+        verbose_name='Estado',
     )
     fecha_pedido = models.DateTimeField(
-        auto_now_add=True, verbose_name='Fecha del pedido'
+        auto_now_add=True,
+        verbose_name='Fecha del pedido',
     )
     fecha_entrega = models.DateField(
-        null=True, blank=True, verbose_name='Fecha de entrega'
+        null=True,
+        blank=True,
+        verbose_name='Fecha de entrega',
     )
     total_pagado = models.DecimalField(
         max_digits=10,
@@ -177,36 +163,40 @@ class Pedido(models.Model):
         null=True,
         blank=True,
         validators=[MinValueValidator(Decimal('0.00'))],
-        verbose_name='Total pagado'
+        verbose_name='Total pagado',
     )
-
-    # Campo agregado (Snapshot del carrito)
     items_snapshot = models.JSONField(
         default=list,
         blank=True,
         verbose_name='Snapshot de items del carrito',
-        help_text='Copia del carrito al momento de crear el pedido.'
+        help_text=(
+            'Copia del carrito al momento de crear el pedido. '
+            'Estructura: [{"producto_id": 1, "nombre": "...", '
+            '"cantidad": 2, "precio": "500.00"}]'
+        )
     )
-
-    def clean(self) -> None:
-        """Valida que la fecha de entrega no sea anterior al pedido.
-
-        Raises:
-            ValidationError: si fecha_entrega < fecha_pedido.date().
-        """
-        if (self.fecha_entrega and self.fecha_pedido and
-                self.fecha_entrega < self.fecha_pedido.date()):
-            raise ValidationError({
-                'fecha_entrega': (
-                    'La fecha de entrega no puede ser anterior '
-                    'a la fecha del pedido.'
-                )
-            })
-
     class Meta:
         verbose_name = 'Pedido'
         verbose_name_plural = 'Pedidos'
         ordering = ['-fecha_pedido']
 
     def __str__(self) -> str:
-        return f"{self.numero_pedido} — {self.cliente} [{self.get_estado_display()}]"
+        return (
+            f"{self.numero_pedido} — {self.cliente} "
+            f"[{self.get_estado_display()}]"
+        )
+
+    def clean(self) -> None:
+        """Valida que la fecha de entrega no sea anterior al pedido."""
+        if (
+            self.fecha_entrega
+            and self.fecha_pedido
+            and self.fecha_entrega < self.fecha_pedido.date()
+        ):
+            raise ValidationError({
+                'fecha_entrega': (
+                    'La fecha de entrega no puede ser anterior '
+                    'a la fecha del pedido.'
+                ),
+            })
+        
