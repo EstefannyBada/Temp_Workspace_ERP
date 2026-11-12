@@ -1,5 +1,5 @@
 # catalogo/checkout_utils.py
-"""Funciones auxiliares para el proceso de checkout — W14."""
+"""Funciones auxiliares para el proceso de checkout — W14 / W15."""
 from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -9,7 +9,7 @@ from ventas.models import Pedido
 
 
 def calcular_totales(carrito: dict) -> dict:
-    """Calcula subtotal, IVA y total del carrito."""
+    """Calcula subtotal, IVA y total del carrito con precisión Decimal."""
     config   = ConfiguracionERP.get_instance()
     iva_pct  = config.iva_porcentaje / Decimal('100')
 
@@ -31,7 +31,7 @@ def calcular_totales(carrito: dict) -> dict:
 
 
 def obtener_o_crear_cliente(user) -> Cliente:
-    """Obtiene o crea un Cliente del ERP vinculado al usuario Django."""
+    """Obtiene o crea un Cliente del ERP vinculado al usuario autenticado."""
     correo = user.email or f"{user.username}@erp.local"
     nombre = user.get_full_name() or user.username
 

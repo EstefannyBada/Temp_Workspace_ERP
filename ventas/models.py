@@ -1,25 +1,16 @@
-
-"""Modelos de la app ventas — Espiral 2 W05.
+# ventas/models.py
+"""Modelos de la app ventas — ERP Django.
 
 Modelos implementados:
     Venta        — encabezado de una venta interna.
     DetalleVenta — línea de producto dentro de una venta.
-    Pedido       — orden de compra del canal e-commerce (Espiral 5).
-
-Decisiones de diseño aplicadas:
-    D-03: Venta.cliente  → PROTECT.
-    D-04: Venta.total    → @property calculada, no campo de BD.
-    D-05: DetalleVenta.producto → PROTECT.
-    D-06: DetalleVenta.precio_unitario → almacenado (histórico).
+    Pedido       — orden de compra del canal e-commerce (W15 con items_snapshot).
 """
-
 from decimal import Decimal
 
-from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
 from django.db import models
 
-from clientes.models import Cliente
+from clientes.models  import Cliente
 from productos.models import Producto
 
 
@@ -34,65 +25,67 @@ class Venta(models.Model):
 
     cliente = models.ForeignKey(
         Cliente,
-        on_delete=models.PROTECT,
+        on_delete=models.PROTECT,      # D-03: no borrar cliente con ventas
         related_name='ventas',
-        verbose_name='Cliente',
+        verbose_name='Cliente'
     )
-    fecha = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha',
+    fecha   = models.DateTimeField(
+        auto_now_add=True, verbose_name='Fecha'
     )
 
     class Meta:
-        verbose_name = 'Venta'
+        verbose_name        = 'Venta'
         verbose_name_plural = 'Ventas'
-        ordering = ['-fecha']
+        ordering            = ['-fecha']
 
     def __str__(self) -> str:
         return f"Venta #{self.pk} — {self.cliente} ({self.fecha:%d/%m/%Y})"
 
     @property
     def total(self) -> Decimal:
-        """Calcula el total sumando los subtotales de las líneas."""
+        """Total de la venta: suma de subtotales de cada línea.
+
+        Decisión D-04: no se almacena en BD para cumplir 3FN.
+        """
         return sum(
-            (detalle.subtotal for detalle in self.detalles.all()),
-            Decimal('0.00'),
+            (d.subtotal for d in self.detalles.all()),
+            Decimal('0.00')
         )
 
 
-# ── DetalleVenta ──────────────────────────────────────────────────────────
+# ── DetalleVenta ───────────────────────────────────────────────────────────
 
 class DetalleVenta(models.Model):
     """Línea de producto dentro de una venta.
 
-    precio_unitario se almacena como histórico porque el precio
-    del producto puede cambiar después de la venta.
+    precio_unitario se almacena (D-06) porque el precio del producto
+    puede cambiar después de la venta; se necesita el histórico exacto.
     """
 
-    venta = models.ForeignKey(
+    venta           = models.ForeignKey(
         Venta,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE,      # borrar Venta → borrar sus líneas
         related_name='detalles',
-        verbose_name='Venta',
+        verbose_name='Venta'
     )
-    producto = models.ForeignKey(
+    producto        = models.ForeignKey(
         Producto,
-        on_delete=models.PROTECT,
+        on_delete=models.PROTECT,      # D-05: no borrar producto con ventas
         related_name='detalles_venta',
-        verbose_name='Producto',
+        verbose_name='Producto'
     )
-    cantidad = models.PositiveIntegerField(
-        verbose_name='Cantidad',
+    cantidad        = models.PositiveIntegerField(
+        verbose_name='Cantidad'
     )
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name='Precio unitario',
-        help_text='Precio al momento de la venta (D-06).',
+        help_text='Precio al momento de la venta (D-06).'
     )
 
     class Meta:
-        verbose_name = 'Detalle de venta'
+        verbose_name        = 'Detalle de venta'
         verbose_name_plural = 'Detalles de venta'
 
     def __str__(self) -> str:
@@ -100,70 +93,61 @@ class DetalleVenta(models.Model):
 
     @property
     def subtotal(self) -> Decimal:
-        """Calcula el subtotal de la línea."""
+        """Subtotal de la línea: cantidad × precio_unitario."""
         return self.precio_unitario * self.cantidad
 
     def save(self, *args, **kwargs) -> None:
-        """Captura el precio actual si no se especificó uno."""
+        """Captura el precio actual del producto si no se especificó."""
         if self.precio_unitario is None:
             self.precio_unitario = self.producto.precio
         super().save(*args, **kwargs)
 
-    def clean(self) -> None:
-        """Valida que la cantidad sea al menos 1."""
-        if self.cantidad is not None and self.cantidad < 1:
-            raise ValidationError({
-                'cantidad': 'La cantidad debe ser al menos 1.',
-            })
 
-
-# ── Pedido ────────────────────────────────────────────────────────────────
+# ── Pedido ─────────────────────────────────────────────────────────────────
 
 class Pedido(models.Model):
-    """Orden de compra del canal e-commerce (Espiral 5)."""
+    """Orden de compra del canal e-commerce.
+
+    Incluye el campo items_snapshot (W15) para guardar la copia del carrito
+    al momento de crear el pedido y permitir la actualización atómica de stock en webhooks.
+    """
 
     ESTADO_CHOICES = [
-        ('pendiente', 'Pendiente de pago'),
-        ('pagado', 'Pago confirmado'),
-        ('enviado', 'En camino'),
-        ('entregado', 'Entregado'),
-        ('cancelado', 'Cancelado'),
+        ('pendiente',  'Pendiente de pago'),
+        ('pagado',     'Pago confirmado'),
+        ('enviado',    'En camino'),
+        ('entregado',  'Entregado'),
+        ('cancelado',  'Cancelado'),
     ]
 
     numero_pedido = models.CharField(
         max_length=20,
         unique=True,
         verbose_name='Número de pedido',
-        help_text='Formato sugerido: PED-YYYY-NNNN',
+        help_text='Formato sugerido: PED-YYYY-NNNN'
     )
-    cliente = models.ForeignKey(
+    cliente       = models.ForeignKey(
         Cliente,
         on_delete=models.PROTECT,
         related_name='pedidos',
-        verbose_name='Cliente',
+        verbose_name='Cliente'
     )
-    estado = models.CharField(
+    estado        = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
         default='pendiente',
-        verbose_name='Estado',
+        verbose_name='Estado'
     )
-    fecha_pedido = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha del pedido',
+    fecha_pedido  = models.DateTimeField(
+        auto_now_add=True, verbose_name='Fecha del pedido'
     )
     fecha_entrega = models.DateField(
-        null=True,
-        blank=True,
-        verbose_name='Fecha de entrega',
+        null=True, blank=True, verbose_name='Fecha de entrega'
     )
-    total_pagado = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        validators=[MinValueValidator(Decimal('0.00'))],
-        verbose_name='Total pagado',
+    total_pagado  = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        null=True, blank=True,
+        verbose_name='Total pagado'
     )
     items_snapshot = models.JSONField(
         default=list,
@@ -175,28 +159,11 @@ class Pedido(models.Model):
             '"cantidad": 2, "precio": "500.00"}]'
         )
     )
+
     class Meta:
-        verbose_name = 'Pedido'
+        verbose_name        = 'Pedido'
         verbose_name_plural = 'Pedidos'
-        ordering = ['-fecha_pedido']
+        ordering            = ['-fecha_pedido']
 
     def __str__(self) -> str:
-        return (
-            f"{self.numero_pedido} — {self.cliente} "
-            f"[{self.get_estado_display()}]"
-        )
-
-    def clean(self) -> None:
-        """Valida que la fecha de entrega no sea anterior al pedido."""
-        if (
-            self.fecha_entrega
-            and self.fecha_pedido
-            and self.fecha_entrega < self.fecha_pedido.date()
-        ):
-            raise ValidationError({
-                'fecha_entrega': (
-                    'La fecha de entrega no puede ser anterior '
-                    'a la fecha del pedido.'
-                ),
-            })
-        
+        return f"{self.numero_pedido} — {self.cliente} [{self.get_estado_display()}]"
