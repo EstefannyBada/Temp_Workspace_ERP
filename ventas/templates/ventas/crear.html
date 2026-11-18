@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Venta #{{ venta.pk }}{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+
+{% block content %}
+💰 Venta #{{ venta.pk }}
+📄 Descargar PDF
+{% if user.is_authenticated %}
+    Eliminar venta
+{% endif %}
+
+Encabezado de la venta
+Cliente
+{{ venta.cliente.nombre }}
+Correo
+{{ venta.cliente.correo }}
+Fecha de emisión
+{{ venta.fecha|date:"d/m/Y H:i" }} hrs
+
+Líneas de detalle
+{% for d in venta.detalles.all %}
+{% empty %}
+{% endfor %}
+# Producto Precio unit. Cantidad Subtotal
+{{ forloop.counter }}
+{{ d.producto.nombre }}
+${{ d.precio_unitario }}
+{{ d.cantidad }}
+${{ d.subtotal }}
+Sin líneas de detalle.
+Total: ${{ venta.total }}
+
+← Volver a la lista
+{% endblock %}
