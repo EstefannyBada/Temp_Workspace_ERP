@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Ventas{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+
+{% block content %}
+💰 Ventas
+{% if user.is_authenticated %}
+    + Nueva venta
+{% endif %}
+
+{% if ventas %}
+    {% if user.is_authenticated %}{% endif %}
+    {% for v in ventas %}
+        {% if user.is_authenticated %}
+        {% endif %}
+    {% endfor %}
+    #ClienteFechaTotalAcciones
+    #{{ v.pk }}
+    {{ v.cliente }}
+    {{ v.fecha|date:"d/m/Y H:i" }}
+    ${{ v.total }}
+    Eliminar
+
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            ← Anterior
+        {% endif %}
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        {% if page_obj.has_next %}
+            Siguiente →
+        {% endif %}
+    {% endif %}
+{% else %}
+    No hay ventas registradas aún.
+{% endif %}
+{% endblock %}
