@@ -6,15 +6,16 @@ Módulo de e-commerce:
 - Carrito de compras almacenado en sesión Django.
 - Proceso de checkout con Stripe PaymentIntent e items_snapshot.
 """
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal
+import traceback
 import uuid
 import stripe
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
 from productos.models import Producto
 from ventas.models import DetalleVenta, Pedido
@@ -204,18 +205,19 @@ def checkout(request):
                 items_snapshot=snapshot,
             )
 
-# 4. Crear PaymentIntent en Stripe
+            # 3. Crear PaymentIntent en Stripe
             monto_centavos = int(totales['total'] * 100)
             intent = stripe.PaymentIntent.create(
-                amount = monto_centavos,
-                currency = 'mxn',
-                metadata = {
+                amount=monto_centavos,
+                currency='mxn',
+                metadata={
                     'pedido_id': pedido.pk,
                     'pedido_num': pedido.numero_pedido,
                     'cliente': cliente.nombre,
                 },
-                idempotency_key = f'pedido-{pedido.pk}-{uuid.uuid4().hex[:8]}',
+                idempotency_key=f'pedido-{pedido.pk}-{uuid.uuid4().hex[:8]}',
             )
+
             # 4. Retornar client_secret al template
             return render(request, 'catalogo/checkout.html', {
                 'carrito': carrito,
@@ -226,9 +228,12 @@ def checkout(request):
             })
 
         except stripe.error.StripeError as exc:
+            traceback.print_exc()
             messages.error(request, f'Error al conectar con Stripe: {exc.user_message or str(exc)}')
             return redirect('catalogo:pago_error')
         except Exception as exc:
+            # Imprime el traceback completo en la terminal / logs
+            traceback.print_exc()
             messages.error(request, f'Error inesperado en el proceso de pago: {exc}')
             return redirect('catalogo:pago_error')
 
@@ -259,9 +264,11 @@ def pago_error(request):
     """Vista de error de pago."""
     return render(request, 'catalogo/pago_error.html')
 
+
+# ── WEBHOOK DE STRIPE ───────────────────────────────────────────────────────
 @csrf_exempt
 def stripe_webhook(request):
-    """Recibe eventos de Stripe y actualiza el pedido."""
+    """Recibe eventos de Stripe y actualiza el estado del pedido."""
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
 
