@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Ventas{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+
+{% block content %}
+<div class="header-actions">
+    <h1>💰 Ventas</h1>
+    {% if user.is_authenticated %}
+        <a href="{% url 'ventas:crear' %}" class="btn btn-primary">+ Nueva venta</a>
+    {% endif %}
+</div>
+
+{% if ventas %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    {% if user.is_authenticated %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in ventas %}
+                <tr>
+                    <td>
+                        <a href="{% url 'ventas:detalle' venta_id=v.pk %}">#{{ v.pk }}</a>
+                    </td>
+                    <td>{{ v.cliente }}</td>
+                    <td>{{ v.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>${{ v.total }}</td>
+                    {% if user.is_authenticated %}
+                    <td>
+                        <a href="{% url 'ventas:eliminar' venta_id=v.pk %}" class="btn btn-danger btn-sm">
+                            Eliminar
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">← Anterior</a>
+        {% endif %}
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">Siguiente →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <p>No hay ventas registradas aún.</p>
+{% endif %}
+{% endblock %}
