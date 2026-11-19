@@ -6,6 +6,8 @@ Módulo de e-commerce:
 - Carrito de compras almacenado en sesión Django.
 - Proceso de checkout con Stripe PaymentIntent e items_snapshot.
 """
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal
 import uuid
 import stripe
@@ -256,3 +258,30 @@ def pago_exitoso(request, pedido_id: int):
 def pago_error(request):
     """Vista de error de pago."""
     return render(request, 'catalogo/pago_error.html')
+
+@csrf_exempt
+def stripe_webhook(request):
+    """Recibe eventos de Stripe y actualiza el pedido."""
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return HttpResponse(status=400)
+
+    if event['type'] == 'payment_intent.succeeded':
+        intent = event['data']['object']
+        pedido_id = intent['metadata'].get('pedido_id')
+        if pedido_id:
+            Pedido.objects.filter(pk=pedido_id).update(estado='pagado')
+
+    elif event['type'] == 'payment_intent.payment_failed':
+        intent = event['data']['object']
+        pedido_id = intent['metadata'].get('pedido_id')
+        if pedido_id:
+            Pedido.objects.filter(pk=pedido_id).update(estado='cancelado')
+
+    return HttpResponse(status=200)
