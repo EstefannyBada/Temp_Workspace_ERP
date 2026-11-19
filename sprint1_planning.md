@@ -31,7 +31,6 @@ panel admin funcional y una suite de ≥ 15 pruebas de modelo pasando.
 
 | Tarea | Semana | Estado |
 |---|---|---|
-<<<<<<< HEAD
 | Diseñar diagrama ER (8 entidades) | W04 | ✅ |
 | Normalizar a 3FN y documentar decisiones | W04 | ✅ |
 | Obtener aprobación del asesor | W04 | ✅ |
@@ -41,7 +40,6 @@ panel admin funcional y una suite de ≥ 15 pruebas de modelo pasando.
 | Agregar validators a campos críticos | W06 | ✅ |
 | Escribir tests/test_models.py (≥ 15 tests) | W06 | ✅ |
 | Instalar y configurar django-jazzmin | W06 | ✅ |
-=======
 | Diseñar diagrama ER (8 entidades) | W04 | ⏳ |
 | Normalizar a 3FN y documentar decisiones | W04 | ⏳ |
 | Obtener aprobación del asesor | W04 | ⏳ |
@@ -51,7 +49,6 @@ panel admin funcional y una suite de ≥ 15 pruebas de modelo pasando.
 | Agregar validators a campos críticos | W06 | ⏳ |
 | Escribir tests/test_models.py (≥ 15 tests) | W06 | ⏳ |
 | Instalar y configurar django-jazzmin | W06 | ⏳ |
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
 
 ---
 
@@ -63,7 +60,6 @@ panel admin funcional y una suite de ≥ 15 pruebas de modelo pasando.
 - `python manage.py test tests.test_models` → ≥ 15 tests PASSED
 - Precio negativo en Producto → `ValidationError`
 - Correo duplicado en Cliente → `IntegrityError`
-<<<<<<< HEAD
 - `fichas/espiral_02_modelos.md` completa
 
 ## Sprint 1 — Estado final W06
@@ -85,6 +81,4 @@ panel admin funcional y una suite de ≥ 15 pruebas de modelo pasando.
 - Admin: 8 modelos con Jazzmin
 - URL producción: https://erp-django-utec.onrender.com/admin/
 - Fecha: ___/___/_____
-=======
 - `fichas/espiral_02_modelos.md` completa
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9

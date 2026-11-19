@@ -28,7 +28,7 @@ SECRET_KEY = os.environ['SECRET_KEY']   # falla intencionalmente si no existe
 _render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
 _extra_hosts  = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] + (
+'localhost', '127.0.0.1' + (
     [_render_host] if _render_host else []
 ) + [h for h in _extra_hosts if h]
 

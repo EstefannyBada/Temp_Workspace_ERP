@@ -37,13 +37,10 @@ RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
 
-<<<<<<< HEAD:dockerfile
 # Comando por defecto: iniciar Gunicorn
 CMD gunicorn core.wsgi \
     --bind 0.0.0.0:$PORT \
     --workers 2 \
     --timeout 120 \
     --log-file -
-=======
 ENTRYPOINT ["/entrypoint.sh"]
->>>>>>> 2a89098 (W12-WeasyPrint: Dockerfile + entrypoint + render.yaml docker + factura_pdf mejorada):Dockerfile

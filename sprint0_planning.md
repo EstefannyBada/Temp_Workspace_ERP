@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Sprint 0 Planning — ERP Django
 ## Semanas W01–W03 · Espiral 1: Infraestructura
 
@@ -54,7 +53,6 @@ y repositorio en GitHub con al menos 10 commits.
 | HU-E1-03 Repositorio GitHub: avance W02 commiteado | ✅ |
 
 =======
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
 ## Sprint 0 — Estado final W03
 
 | HU | Estado | Puntos entregados |
@@ -69,8 +67,5 @@ y repositorio en GitHub con al menos 10 commits.
 - URL pública: https://erp-django-utec.onrender.com
 - Tests: Ran 33 tests → OK
 - Commits: ≥ 6 en rama main
-<<<<<<< HEAD
 - Fecha: ___/___/_____
-=======
 - Fecha: ___/___/_____
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9

@@ -1,11 +1,8 @@
 # docker-compose.yml
 # Uso: docker-compose up --build
 # Requiere Docker Desktop instalado en la PC
-<<<<<<< HEAD
 
-=======
 # docker-compose.yml — versión W16 completa
->>>>>>> e6ee92a (Descripción clara de lo que modificaste o agregaste)
 version: '3.9'
 
 services:
@@ -28,24 +25,18 @@ services:
       timeout: 5s
       retries: 5
 
-<<<<<<< HEAD
   # ── Cache Redis (preparado para Celery en W16) ─────────────────────
-=======
   # ── Broker de mensajes Redis ────────────────────────────────────────
->>>>>>> e6ee92a (Descripción clara de lo que modificaste o agregaste)
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
       - "6379:6379"
-<<<<<<< HEAD
-=======
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
->>>>>>> e6ee92a (Descripción clara de lo que modificaste o agregaste)
 
   # ── Aplicación Django ───────────────────────────────────────────────
   web:
@@ -64,11 +55,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-<<<<<<< HEAD
-=======
       redis:
         condition: service_healthy
->>>>>>> e6ee92a (Descripción clara de lo que modificaste o agregaste)
     environment:
       DJANGO_SETTINGS_MODULE: core.settings_prod
       SECRET_KEY:             dev-clave-docker-no-usar-en-produccion
@@ -76,8 +64,6 @@ services:
       DATABASE_URL:           postgres://erp_user:erp_pass_local@db:5432/erp_db
       REDIS_URL:              redis://redis:6379/0
       ALLOWED_HOSTS:          localhost,127.0.0.1
-<<<<<<< HEAD
-=======
       STRIPE_SECRET_KEY:      sk_test_placeholder
       STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
       STRIPE_WEBHOOK_SECRET:  whsec_placeholder
@@ -112,17 +98,10 @@ services:
     depends_on:
       - redis
       - celery_worker
->>>>>>> e6ee92a (Descripción clara de lo que modificaste o agregaste)
 
 volumes:
   postgres_data:
   static_volume:
-<<<<<<< HEAD
-<<<<<<< HEAD
   media_volume:
-=======
   media_volume:
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
-=======
   media_volume:
->>>>>>> e6ee92a (Descripción clara de lo que modificaste o agregaste)

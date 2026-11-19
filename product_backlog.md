@@ -2,13 +2,10 @@
 ## UTEC Celaya · Módulo II · Asesor: MC. Román F. López González
 
 ## Roles del equipo
-<<<<<<< HEAD
 - **Product Owner:** MC. Román Fernando López González
 - **Scrum Master / Equipo:** [Tadeo Haim Estrella Mejia]
-=======
 - **Product Owner:** MC. Román estefanny velazquez badajoz
 - **Scrum Master / Equipo:** [Tu nombre]
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
 
 ## Backlog completo (extracto W01–W06)
 
@@ -25,8 +22,5 @@
 | HU-E3-01 | Como vendedor, quiero ver la lista de productos para consultar el inventario | E3 | Alta | 2 |
 | HU-E3-02 | Como gerente, quiero acceder a todos los módulos con un solo login | E3 | Alta | 3 |
 
-<<<<<<< HEAD
 ## Total de puntos en este extracto: 27
-=======
 ## Total de puntos en este extracto: 27
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9

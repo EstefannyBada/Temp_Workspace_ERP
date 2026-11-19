@@ -12,8 +12,5 @@ staticfiles/
 media/
 *.md
 .vscode/
-<<<<<<< HEAD
 tests/
-=======
 tests/
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ### Las 8 entidades del ERP
 
 Registrar en papel o en la libreta. Luego transcribir a `docs/entidades_atributos.md`.
@@ -88,7 +87,6 @@ Registrar en papel o en la libreta. Luego transcribir a `docs/entidades_atributo
 | `moneda` | `CharField(3)` | default='MXN' | ISO 4217 |
 | `iva_porcentaje` | `DecimalField(5,2)` | default=16.00 | IVA México estándar |
 | `logo` | `ImageField` | null=True, blank=True | Logo para facturas PDF |
-=======
 # Decisiones de Diseño — ERP Django
 ## Espiral 2 · Modelo Entidad-Relación
 
@@ -134,4 +132,3 @@ Usar `activo=False` para "dar de baja" sin borrar datos.
 @property
 def total(self):
     return sum(d.subtotal for d in self.detalles.all())
->>>>>>> 887a20c10a2701be1ada22a52c82e7142859dab9
