@@ -18,7 +18,7 @@ urlpatterns = [
     path('carrito/vaciar/',                       views.vaciar_carrito,     name='vaciar'),
 
     # Checkout con Stripe (W14)
-    path("crear-payment-intent/", views.crear_payment_intent, name="crear_payment_intent"),
+    path("crear-payment-intent/", views.checkout, name="crear_payment_intent"),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
     path("pago-exitoso/", views.pago_exitoso, name="pago_exitoso"),
 
