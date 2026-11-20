@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0A2342">
-    <title>{% block title %}ERP Django{% endblock %} · UTEC Celaya</title>
+    <title>{% block title %}ERP Django{% endblock %}</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,12 +55,15 @@
         *, *::before, *::after { box-sizing: border-box; }
 
         /* ===== FONDO AURORA BOREAL ===== */
-        html { background: #020b2a; }
+        /* El degradado va en html; el body es transparente para que
+           las luces verdes (body::before) se vean por encima. */
+        html {
+            background: linear-gradient(180deg, #020b2a 0%, #0a1f5c 60%, #0b2a6b 100%) fixed;
+        }
         body {
             font-family: 'Inter','Segoe UI',sans-serif;
             font-size: 15px;
-            background: linear-gradient(180deg, #020b2a 0%, #0a1f5c 60%, #0b2a6b 100%) !important;
-            background-attachment: fixed !important;
+            background: transparent !important;
             color: var(--clr-text);
             line-height: 1.6;
             margin: 0;
@@ -151,7 +154,6 @@
             color: var(--clr-gold) !important;
             text-decoration: none; letter-spacing: .04em;
         }
-        .erp-brand span { color: rgba(255,255,255,.7); font-weight: 300; font-size: .85em; }
         .erp-nav-links { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
         .erp-nav-link {
             color: rgba(255,255,255,.82) !important;
@@ -308,7 +310,7 @@
 <body>
 <!-- NAVBAR -->
 <nav class="erp-navbar">
-    <a class="erp-brand" href="/">📦 ERP Django <span>· UTEC Celaya</span></a>
+    <a class="erp-brand" href="/">📦 ERP Django</a>
     <div class="erp-nav-links">
         <a href="{% url 'catalogo:catalogo' %}" class="erp-nav-link {% block nav_catalogo %}{% endblock %}">
             🛒 Tienda
@@ -359,7 +361,7 @@
 
 <!-- FOOTER -->
 <footer class="erp-footer">
-    ERP Django · Django 4.2 LTS · Fable 5 AzulERP · UTEC Celaya · Espiral 1
+    ERP Django · Django 4.2 LTS · Fable 5 AzulERP · Espiral 1
 </footer>
 
 <!-- Bootstrap JS -->
