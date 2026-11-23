@@ -136,7 +136,12 @@ class Pedido(models.Model):
         verbose_name='Snapshot de items del carrito',
         help_text='Copia del carrito al momento de crear el pedido.'
     )
-
+    correo_enviado = models.BooleanField(
+        default=False,
+        verbose_name='Correo de confirmación enviado',
+        help_text='True cuando se envió el correo de confirmación al cliente.'
+    )
+    
     class Meta:
         verbose_name = 'Pedido'
         verbose_name_plural = 'Pedidos'

@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 import environ
-
+import sys
 # ── 1. Directorio Base ──────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'reportes',
     'configuracion',
     'catalogo',
+     'anymail',
 ]
 
 # ── 4. Middlewares ──────────────────────────────────────────────────────────
@@ -235,4 +236,55 @@ JAZZMIN_UI_TWEAKS = {
         'danger': 'btn-danger',
         'success': 'btn-success',
     },
+}
+# ── CELERY — Cola de tareas asíncronas ────────────────────────────────────
+CELERY_BROKER_URL        = env('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND    = env('REDIS_URL', default='redis://localhost:6379/0')
+
+CELERY_ACCEPT_CONTENT    = ['json']
+CELERY_TASK_SERIALIZER   = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_TIMEZONE = TIME_ZONE   # 'America/Mexico_City'
+
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+CELERY_TASK_SOFT_TIME_LIMIT = 300   # 5 minutos
+CELERY_TASK_TIME_LIMIT       = 360  # 6 minutos (límite duro)
+
+CELERY_TASK_DEFAULT_QUEUE = 'erp_django'
+
+# Para tests: se activa con @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+CELERY_TASK_ALWAYS_EAGER     = 'test' in sys.argv
+CELERY_TASK_EAGER_PROPAGATES = True
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend'
+)
+
+DEFAULT_FROM_EMAIL = env(
+    'DEFAULT_FROM_EMAIL',
+    default='ERP Django <noreply@erp-django.com>'
+)
+
+EMAIL_SUBJECT_PREFIX = '[ERP Django] '
+
+# Administradores que reciben las alertas del sistema
+ADMINS = [
+    ('Admin ERP', env('ADMIN_EMAIL', default='admin@erp-django.com')),
+]
+
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
+ANYMAIL = {
+    'SENDGRID_API_KEY': SENDGRID_API_KEY,
+}
+# ── CORREO ELECTRÓNICO (W17) ────────────────────────────────────────────────
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend'
+)
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@erp.local')
+ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@erp.local')
+
+ANYMAIL = {
+    "SENDGRID_API_KEY": env('SENDGRID_API_KEY', default=''),
 }

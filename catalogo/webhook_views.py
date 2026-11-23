@@ -13,7 +13,7 @@ Eventos manejados:
     payment_intent.payment_failed → Pedido.estado = 'cancelado'
 """
 import logging
-
+from ventas.tasks import enviar_confirmacion_pedido
 import stripe
 from django.conf import settings
 from django.db.models import F
@@ -65,7 +65,6 @@ def stripe_webhook(request) -> HttpResponse:
 
 
 # ── HANDLERS INTERNOS ──────────────────────────────────────────────────────
-
 def _manejar_pago_exitoso(payment_intent: dict) -> None:
     """Procesa un pago confirmado por Stripe."""
     pedido_id = _extraer_pedido_id(payment_intent)
@@ -83,12 +82,14 @@ def _manejar_pago_exitoso(payment_intent: dict) -> None:
         pedido.save(update_fields=['estado'])
         logger.info(f'Pedido {pedido.numero_pedido} actualizado a "pagado".')
         _descontar_stock(pedido)
+
+        # NUEVO W16: encola la tarea de confirmación (no bloquea el webhook)
+        enviar_confirmacion_pedido.delay(pedido.pk)
     else:
         logger.info(
             f'Pedido {pedido.numero_pedido} ya estaba pagado — '
             f'idempotente, sin cambios.'
         )
-
 
 def _manejar_pago_fallido(payment_intent: dict) -> None:
     """Procesa un pago fallido o rechazado."""

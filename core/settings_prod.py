@@ -92,3 +92,4 @@ LOGGING = {
         },
     },
 }
+EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend'
