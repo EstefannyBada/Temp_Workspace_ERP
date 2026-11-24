@@ -1,10 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0A2342">
-    <title>{% block title %}ERP Django{% endblock %} · UTEC Celaya</title>
+    <title>{% block title %}Inventarios de flannyouyea{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'img/gato_sufro.png' %}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,8 +77,14 @@
             font-size: 1.3rem; font-weight: 700;
             color: var(--clr-gold) !important;
             text-decoration: none; letter-spacing: .04em;
+            display: inline-flex; align-items: center; gap: .6rem;
         }
         .erp-brand span { color: rgba(255,255,255,.7); font-weight: 300; font-size: .85em; }
+        .erp-brand-logo {
+            width: 36px; height: 36px; border-radius: 50%;
+            object-fit: cover; border: 2px solid var(--clr-gold);
+            background: #FFF;
+        }
         .erp-nav-links { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
         .erp-nav-link {
             color: rgba(255,255,255,.82) !important;
@@ -234,7 +242,10 @@
 <body>
 <!-- NAVBAR -->
 <nav class="erp-navbar">
-    <a class="erp-brand" href="/">📦 ERP Django <span>· UTEC Celaya</span></a>
+    <a class="erp-brand" href="/">
+        <img src="{% static 'img/gato_sufro.png' %}" alt="Ay, cómo sufro" class="erp-brand-logo">
+        Inventarios de flannyouyea
+    </a>
     <div class="erp-nav-links">
         <a href="{% url 'catalogo:catalogo' %}" class="erp-nav-link {% block nav_catalogo %}{% endblock %}">
             🛒 Tienda
@@ -285,7 +296,7 @@
 
 <!-- FOOTER -->
 <footer class="erp-footer">
-    ERP Django · Django 4.2 LTS · Fable 5 AzulERP · UTEC Celaya · Espiral 1
+    Inventarios de flannyouyea · Django 4.2 LTS · Fable 5 AzulERP · Espiral 1
 </footer>
 
 <!-- Bootstrap JS -->
