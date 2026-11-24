@@ -8,6 +8,9 @@ Variables de entorno requeridas en Render Dashboard:
     DATABASE_URL            → proporcionada automáticamente por Render PostgreSQL
     DJANGO_SETTINGS_MODULE  → core.settings_prod
     ALLOWED_HOSTS           → tu-app.onrender.com (o dejar vacío para auto)
+    REDIS_URL               → Internal Connection URL del Key Value de Render
+    CELERY_EMBEDDED_WORKER  → true (worker de Celery dentro del servicio web)
+    CELERY_EMBEDDED_BEAT    → true (Beat dentro del servicio web)
 
 Uso local con Docker:
     export DJANGO_SETTINGS_MODULE=core.settings_prod
@@ -15,7 +18,7 @@ Uso local con Docker:
     export DATABASE_URL=postgres://erp_user:erp_pass@db:5432/erp_db
     gunicorn core.wsgi --bind 0.0.0.0:8000
 """
-from .settings import *   # hereda toda la configuración base
+from .settings import *   # hereda toda la configuración base (incluye Celery y REDIS_URL)
 import os
 import dj_database_url
 
@@ -26,11 +29,13 @@ SECRET_KEY = os.environ['SECRET_KEY']   # falla intencionalmente si no existe
 # ── HOSTS PERMITIDOS ────────────────────────────────────────────────────────
 # Render inyecta RENDER_EXTERNAL_HOSTNAME automáticamente
 _render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
-_extra_hosts  = os.environ.get('ALLOWED_HOSTS', '').split(',')
+_extra_hosts = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
-'localhost', '127.0.0.1' + (
-    [_render_host] if _render_host else []
-) + [h for h in _extra_hosts if h]
+ALLOWED_HOSTS = (
+    ['localhost', '127.0.0.1']
+    + ([_render_host] if _render_host else [])
+    + [h.strip() for h in _extra_hosts if h.strip()]
+)
 
 # ── BASE DE DATOS: PostgreSQL via DATABASE_URL ─────────────────────────────
 if os.environ.get('DATABASE_URL'):
