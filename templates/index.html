@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio | Inventarios de flannyouyea{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-banner {
+        background: linear-gradient(135deg, #0A2342 0%, #163B6B 100%);
+        border-radius: 18px;
+        padding: 3.5rem 2.75rem;
+        color: #FFFFFF;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2.5rem;
+    }
+    .hero-banner::after {
+        content: "";
+        position: absolute;
+        top: -50%; right: -10%;
+        width: 440px; height: 440px;
+        background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .hero-kicker {
+        display: inline-block;
+        font-size: .78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .14em;
+        color: var(--clr-amber);
+        border: 1px solid rgba(212, 175, 55, 0.45);
+        padding: .32rem .9rem;
+        border-radius: 50px;
+        margin-bottom: 1.1rem;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .hero-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: clamp(2rem, 4vw, 2.9rem);
+        font-weight: 700;
+        line-height: 1.18;
+        margin-bottom: 1rem;
+        color: #FFFFFF;
+    }
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.82);
+        max-width: 580px;
+        margin-bottom: 2rem;
+        font-weight: 300;
+    }
+    .cat-mascot-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+    .cat-mascot-img {
+        width: 195px;
+        height: 195px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid var(--clr-gold);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+        background: #FFF;
+        transition: transform .35s ease;
+    }
+    .cat-mascot-wrapper:hover .cat-mascot-img {
+        transform: scale(1.04) rotate(2deg);
+    }
+    .cat-mascot-caption {
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--clr-navy);
+        color: var(--clr-amber);
+        border: 1px solid var(--clr-gold);
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        font-size: .82rem;
+        padding: .25rem .95rem;
+        border-radius: 20px;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .module-card {
+        background: var(--clr-surface);
+        border: 1px solid var(--clr-border);
+        border-radius: 14px;
+        padding: 1.75rem;
+        height: 100%;
+        text-decoration: none;
+        color: var(--clr-text);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all .25s ease;
+        box-shadow: var(--shadow-sm);
+    }
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--clr-gold);
+        color: var(--clr-text);
+    }
+    .module-icon {
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        background: var(--clr-ice);
+        color: var(--clr-royal);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 1.25rem;
+        border: 1px solid var(--clr-border);
+    }
+    .module-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.22rem;
+        font-weight: 700;
+        margin-bottom: .45rem;
+        color: var(--clr-navy);
+    }
+    [data-theme="dark"] .module-title { color: var(--clr-sky); }
+    .module-desc {
+        font-size: .88rem;
+        color: var(--clr-muted);
+        margin-bottom: 1.25rem;
+    }
+    .module-link {
+        font-size: .82rem;
+        font-weight: 600;
+        color: var(--clr-gold);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-banner">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="hero-kicker">Gestión & Control Operativo</span>
+            <h1 class="hero-title">Inventarios de flannyouyea</h1>
+            <p class="hero-subtitle">
+                Plataforma centralizada para administrar existencias, registrar operaciones comerciales y consultar indicadores clave sin perder la calma.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{% url 'catalogo:catalogo' %}" class="btn-erp-gold">
+                    🛒 Explorar Tienda
+                </a>
+                <a href="{% url 'productos:lista' %}" class="btn-erp-primary">
+                    📦 Gestionar Productos
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4 text-center">
+            <div class="cat-mascot-wrapper">
+                <img src="{% static 'img/gato_sufro.png' %}" alt="Ay, cómo sufro" class="cat-mascot-img">
+                <span class="cat-mascot-caption">«Ay, cómo sufro»</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'productos:lista' %}" class="module-card">
+            <div>
+                <div class="module-icon">📦</div>
+                <h3 class="module-title">Productos</h3>
+                <p class="module-desc">Control de catálogo, existencias, precios unitarios y niveles de stock.</p>
+            </div>
+            <span class="module-link">Ir al módulo →</span>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'ventas:lista' %}" class="module-card">
+            <div>
+                <div class="module-icon">💳</div>
+                <h3 class="module-title">Ventas</h3>
+                <p class="module-desc">Registro de transacciones, historial de pedidos y facturación.</p>
+            </div>
+            <span class="module-link">Ir al módulo →</span>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'clientes:lista' %}" class="module-card">
+            <div>
+                <div class="module-icon">🤝</div>
+                <h3 class="module-title">Clientes & Proveedores</h3>
+                <p class="module-desc">Directorio comercial y seguimiento de relaciones con socios.</p>
+            </div>
+            <span class="module-link">Ir al módulo →</span>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'reportes:inicio' %}" class="module-card">
+            <div>
+                <div class="module-icon">📊</div>
+                <h3 class="module-title">Reportes</h3>
+                <p class="module-desc">Análisis de movimientos, rentabilidad y métricas del inventario.</p>
+            </div>
+            <span class="module-link">Ir al módulo →</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
