@@ -4,247 +4,480 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0A2342">
+    <meta name="theme-color" content="#0B1F3A">
     <title>{% block title %}Inventarios de flannyouyea{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'img/gato_sufro.png' %}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Fable 5 AzulERP — Design System -->
     <style>
         :root, [data-theme="light"] {
-            --clr-navy   : #0A2342;
-            --clr-royal  : #1B4F8A;
-            --clr-sky    : #4A90D9;
-            --clr-ice    : #E8F0FB;
-            --clr-gold   : #B8860B;
-            --clr-amber  : #D4A017;
-            --clr-cream  : #FDF8E8;
-            --clr-bg     : #F4F6F9;
-            --clr-surface: #FFFFFF;
-            --clr-text   : #1A1A2E;
-            --clr-muted  : #5A6A7E;
-            --clr-border : #DCE5F2;
-            --clr-danger : #C0392B;
-            --clr-ok     : #1A7A4A;
-            --shadow-sm  : 0 2px 8px rgba(10,35,66,.06);
-            --shadow-md  : 0 8px 24px rgba(10,35,66,.10);
-            --shadow-lg  : 0 16px 40px rgba(10,35,66,.14);
+            --clr-navy      : #0B1F3A;
+            --clr-royal     : #1B4F8A;
+            --clr-sky       : #3B82F6;
+            --clr-ice       : #EEF4FB;
+            --clr-gold      : #C59B27;
+            --clr-amber     : #DFAF2B;
+            --clr-cream     : #FCF7E8;
+            --clr-bg        : #F5F7FA;
+            --clr-surface   : #FFFFFF;
+            --clr-text      : #142033;
+            --clr-muted     : #5A6B82;
+            --clr-border    : #E2E8F0;
+            --clr-danger    : #B91C1C;
+            --clr-ok        : #15803D;
+            --nav-bg        : rgba(11, 31, 58, 0.92);
+            --nav-text      : rgba(255, 255, 255, 0.86);
+            --nav-hover-bg  : rgba(255, 255, 255, 0.10);
+            --shadow-sm     : 0 1px 3px rgba(11, 31, 58, 0.05), 0 4px 12px rgba(11, 31, 58, 0.04);
+            --shadow-md     : 0 8px 24px rgba(11, 31, 58, 0.08);
+            --shadow-lg     : 0 16px 36px rgba(11, 31, 58, 0.12);
         }
+
         [data-theme="dark"] {
-            --clr-navy   : #12263F;
-            --clr-royal  : #2E5F9E;
-            --clr-sky    : #6BAEE8;
-            --clr-ice    : #1A2A3A;
-            --clr-gold   : #D4AF37;
-            --clr-amber  : #E8C547;
-            --clr-cream  : #2A2510;
-            --clr-bg     : #0B1623;
-            --clr-surface: #132032;
-            --clr-text   : #E2EAF4;
-            --clr-muted  : #8AA0B8;
-            --clr-border : #253850;
-            --clr-danger : #E74C3C;
-            --clr-ok     : #2ECC71;
-            --shadow-sm  : 0 2px 8px rgba(0,0,0,.25);
-            --shadow-md  : 0 8px 24px rgba(0,0,0,.35);
-            --shadow-lg  : 0 16px 40px rgba(0,0,0,.45);
+            --clr-navy      : #11223A;
+            --clr-royal     : #3B82F6;
+            --clr-sky       : #60A5FA;
+            --clr-ice       : #18283E;
+            --clr-gold      : #E0B841;
+            --clr-amber     : #F0CA56;
+            --clr-cream     : #292211;
+            --clr-bg        : #09111E;
+            --clr-surface   : #101B2D;
+            --clr-text      : #E6EDF6;
+            --clr-muted     : #94A6BE;
+            --clr-border    : #1F314B;
+            --clr-danger    : #F87171;
+            --clr-ok        : #4ADE80;
+            --nav-bg        : rgba(9, 17, 30, 0.90);
+            --nav-text      : rgba(230, 237, 246, 0.85);
+            --nav-hover-bg  : rgba(255, 255, 255, 0.08);
+            --shadow-sm     : 0 1px 3px rgba(0, 0, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.22);
+            --shadow-md     : 0 8px 24px rgba(0, 0, 0, 0.38);
+            --shadow-lg     : 0 16px 36px rgba(0, 0, 0, 0.48);
         }
-        *, *::before, *::after { box-sizing: border-box; }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter','Segoe UI',sans-serif;
-            font-size: 15px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 0.95rem;
             background: var(--clr-bg);
             color: var(--clr-text);
-            line-height: 1.6;
-            transition: background .25s, color .25s;
+            line-height: 1.65;
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
+
+        :focus-visible {
+            outline: 2px solid var(--clr-gold);
+            outline-offset: 2px;
+        }
+
+        /* Navbar */
         .erp-navbar {
-            background: rgba(10, 35, 66, 0.96);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--clr-gold);
-            padding: .75rem 2rem;
-            display: flex; align-items: center;
-            justify-content: space-between; flex-wrap: wrap; gap: .75rem;
-            box-shadow: var(--shadow-md);
-            position: sticky; top: 0; z-index: 1000;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(224, 184, 65, 0.35);
+            padding: 0.7rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+
         .erp-brand {
-            font-family: 'Playfair Display',Georgia,serif;
-            font-size: 1.35rem; font-weight: 700;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--clr-gold) !important;
-            text-decoration: none; letter-spacing: .03em;
-            display: inline-flex; align-items: center; gap: .75rem;
+            text-decoration: none;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
         }
-        .erp-brand span { color: rgba(255,255,255,.7); font-weight: 300; font-size: .85em; }
+
         .erp-brand-logo {
-            width: 38px; height: 38px; border-radius: 50%;
-            object-fit: cover; border: 2px solid var(--clr-gold);
-            background: #FFF; transition: transform .3s ease;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--clr-gold);
+            background: var(--clr-surface);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.25s ease;
         }
-        .erp-brand:hover .erp-brand-logo { transform: scale(1.08) rotate(-4deg); }
-        .erp-nav-links { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+
+        .erp-brand:hover .erp-brand-logo {
+            transform: scale(1.06) rotate(-3deg);
+        }
+
+        .erp-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
         .erp-nav-link {
-            color: rgba(255,255,255,.85) !important;
-            font-size: .88rem; font-weight: 500;
-            padding: .4rem .85rem; border-radius: 8px;
-            text-decoration: none; background: none; border: none;
-            transition: all .2s ease;
+            color: var(--nav-text) !important;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.42rem 0.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
         }
-        .erp-nav-link:hover, .erp-nav-link.active {
-            background: rgba(255,255,255,.12); color: var(--clr-amber) !important;
+
+        .erp-nav-link:hover,
+        .erp-nav-link.active {
+            background: var(--nav-hover-bg);
+            color: var(--clr-amber) !important;
         }
+
         .theme-toggle {
-            background: rgba(255,255,255,.1); color: var(--clr-gold);
-            border: 1px solid rgba(212,175,55,.4); border-radius: 50%;
-            width: 34px; height: 34px; font-size: .95rem;
-            cursor: pointer; transition: all .25s ease;
-            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--nav-hover-bg);
+            color: var(--clr-gold);
+            border: 1px solid rgba(224, 184, 65, 0.35);
+            border-radius: 999px;
+            width: 34px;
+            height: 34px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-left: 0.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
         }
-        .theme-toggle:hover { background: var(--clr-gold); color: var(--clr-navy); transform: rotate(15deg); }
-        .erp-main { padding: 2.5rem 0; flex: 1; }
+
+        .theme-toggle:hover {
+            background: var(--clr-gold);
+            color: var(--clr-navy);
+            transform: rotate(12deg);
+        }
+
+        /* Layout principal */
+        .erp-main {
+            padding: 2.25rem 0 2.75rem;
+            flex: 1;
+        }
+
+        .erp-page-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--clr-border);
+        }
+
+        .erp-page-title h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--clr-navy);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        [data-theme="dark"] .erp-page-title h2 {
+            color: var(--clr-text);
+        }
+
+        /* Tarjetas */
         .erp-card {
             background: var(--clr-surface);
             border: 1px solid var(--clr-border);
-            border-radius: 14px; box-shadow: var(--shadow-sm);
-            padding: 1.75rem; margin-bottom: 1.5rem;
-            transition: transform .2s ease, box-shadow .2s ease;
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+            padding: 1.65rem;
+            margin-bottom: 1.5rem;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
         }
-        .erp-card:hover { box-shadow: var(--shadow-md); }
+
+        .erp-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
         .erp-card-header {
-            background: var(--clr-navy); color: #FFF;
-            border-radius: 12px 12px 0 0;
-            padding: .9rem 1.4rem;
-            border-left: 4px solid var(--clr-gold);
-            font-family: 'Playfair Display',serif;
-            font-size: 1.05rem; letter-spacing: .03em;
-            margin: -1.75rem -1.75rem 1.5rem;
+            background: var(--clr-navy);
+            color: #FFFFFF;
+            border-radius: 13px 13px 0 0;
+            padding: 0.9rem 1.4rem;
+            border-bottom: 1px solid rgba(224, 184, 65, 0.35);
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            margin: -1.65rem -1.65rem 1.4rem;
         }
+
+        /* Tablas */
         .erp-table {
-            width: 100%; border-collapse: separate; border-spacing: 0;
-            border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm);
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
+
         .erp-table thead th {
-            background: var(--clr-navy); color: #FFF;
-            font-weight: 600; font-size: .8rem;
-            text-transform: uppercase; letter-spacing: .06em;
-            padding: .85rem 1rem; border-bottom: 2px solid var(--clr-gold);
+            background: var(--clr-navy);
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid rgba(224, 184, 65, 0.4);
         }
+
         .erp-table tbody td {
-            background: var(--clr-surface); padding: .75rem 1rem;
-            border-bottom: 1px solid var(--clr-border); font-size: .9rem;
+            background: var(--clr-surface);
+            color: var(--clr-text);
+            padding: 0.78rem 1rem;
+            border-bottom: 1px solid var(--clr-border);
+            font-size: 0.9rem;
+            vertical-align: middle;
         }
-        .erp-table tbody tr:nth-child(even) td { background: var(--clr-ice); }
-        .erp-table tbody tr:hover td { background: rgba(74,144,217,.08); }
+
+        .erp-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .erp-table tbody tr:nth-child(even) td {
+            background: var(--clr-ice);
+        }
+
+        .erp-table tbody tr:hover td {
+            background: rgba(59, 130, 246, 0.07);
+        }
+
         .erp-table tfoot td {
-            background: var(--clr-cream); color: var(--clr-gold);
-            font-weight: 700; border-top: 2px solid var(--clr-gold);
+            background: var(--clr-cream);
+            color: var(--clr-text);
+            font-weight: 700;
+            border-top: 1px solid var(--clr-gold);
+            padding: 0.8rem 1rem;
         }
+
+        /* Botones */
         .btn-erp-primary {
-            background: var(--clr-navy); color: #FFF;
-            border: 1.5px solid var(--clr-gold); border-radius: 8px;
-            padding: .55rem 1.35rem; font-weight: 600; font-size: .88rem;
-            cursor: pointer; text-decoration: none; display: inline-block;
-            transition: all .2s ease;
+            background: var(--clr-navy);
+            color: #FFFFFF;
+            border: 1px solid rgba(224, 184, 65, 0.55);
+            border-radius: 8px;
+            padding: 0.52rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: background-color 0.18s ease, color 0.18s ease, transform 0.15s ease;
         }
-        .btn-erp-primary:hover { background: var(--clr-gold); color: var(--clr-navy); transform: translateY(-1px); }
+
+        .btn-erp-primary:hover {
+            background: var(--clr-gold);
+            color: var(--clr-navy);
+            transform: translateY(-1px);
+        }
+
         .btn-erp-gold {
             background: linear-gradient(135deg, var(--clr-gold), var(--clr-amber));
-            color: #0A2342; border: none; border-radius: 8px;
-            padding: .6rem 1.5rem; font-weight: 700; font-size: .9rem;
-            cursor: pointer; text-decoration: none; display: inline-block;
-            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
-            transition: all .2s ease;
+            color: #0B1F3A;
+            border: none;
+            border-radius: 8px;
+            padding: 0.56rem 1.35rem;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 3px 10px rgba(197, 155, 39, 0.24);
+            transition: filter 0.18s ease, transform 0.15s ease;
         }
-        .btn-erp-gold:hover { filter: brightness(1.06); transform: translateY(-1px); color: #0A2342; }
+
+        .btn-erp-gold:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+            color: #0B1F3A;
+        }
+
         .btn-erp-danger {
-            background: var(--clr-danger); color: #FFF; border: none;
-            border-radius: 8px; padding: .4rem 1rem;
-            font-weight: 600; font-size: .85rem;
-            cursor: pointer; text-decoration: none; display: inline-block;
+            background: var(--clr-danger);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            padding: 0.42rem 0.95rem;
+            font-weight: 600;
+            font-size: 0.84rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: filter 0.18s ease;
         }
-        .btn-erp-sm { padding: .3rem .75rem; font-size: .8rem; }
+
+        .btn-erp-danger:hover {
+            filter: brightness(1.08);
+            color: #FFFFFF;
+        }
+
+        .btn-erp-sm {
+            padding: 0.3rem 0.72rem;
+            font-size: 0.8rem;
+        }
+
+        /* Formularios */
         .erp-label {
-            font-size: .82rem; font-weight: 600; color: var(--clr-muted);
-            text-transform: uppercase; letter-spacing: .05em;
-            display: block; margin-bottom: .35rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--clr-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            display: block;
+            margin-bottom: 0.4rem;
         }
+
         .erp-input {
-            background: var(--clr-surface); border: 1.5px solid var(--clr-border);
-            border-radius: 8px; color: var(--clr-text);
-            padding: .55rem .9rem; width: 100%; font-size: .93rem;
-            transition: border-color .2s, box-shadow .2s;
+            background: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: 8px;
+            color: var(--clr-text);
+            padding: 0.55rem 0.88rem;
+            width: 100%;
+            font-size: 0.92rem;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
         }
+
         .erp-input:focus {
-            outline: none; border-color: var(--clr-sky);
-            box-shadow: 0 0 0 3px rgba(74,144,217,.18);
+            outline: none;
+            border-color: var(--clr-sky);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
         }
+
+        /* Badges */
         .badge-erp-active {
-            background: rgba(26,122,74,.12); color: var(--clr-ok);
-            border: 1px solid currentColor;
-            font-size: .75rem; padding: .22rem .65rem;
-            border-radius: 20px; font-weight: 600;
+            background: rgba(21, 128, 61, 0.12);
+            color: var(--clr-ok);
+            border: 1px solid rgba(21, 128, 61, 0.35);
+            font-size: 0.75rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 999px;
+            font-weight: 600;
         }
+
         .badge-erp-inactive {
-            background: rgba(192,57,43,.1); color: var(--clr-danger);
-            border: 1px solid currentColor;
-            font-size: .75rem; padding: .22rem .65rem; border-radius: 20px;
+            background: rgba(185, 28, 28, 0.10);
+            color: var(--clr-danger);
+            border: 1px solid rgba(185, 28, 28, 0.3);
+            font-size: 0.75rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 999px;
+            font-weight: 600;
         }
+
         .badge-erp-gold {
-            background: var(--clr-cream); color: var(--clr-gold);
-            border: 1px solid var(--clr-gold);
-            font-size: .75rem; padding: .22rem .75rem;
-            border-radius: 20px; font-weight: 700;
+            background: var(--clr-cream);
+            color: var(--clr-gold);
+            border: 1px solid rgba(197, 155, 39, 0.45);
+            font-size: 0.75rem;
+            padding: 0.22rem 0.72rem;
+            border-radius: 999px;
+            font-weight: 700;
         }
-        .erp-alert-danger {
-            background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.3);
-            border-left: 4px solid var(--clr-danger); border-radius: 8px;
-            padding: 1rem 1.25rem;
-        }
-        .erp-alert-info {
-            background: var(--clr-ice); border: 1px solid var(--clr-border);
-            border-left: 4px solid var(--clr-sky); border-radius: 8px;
-            padding: 1rem 1.25rem;
-        }
+
+        /* Alertas */
+        .erp-alert-danger,
+        .erp-alert-info,
         .erp-alert-success {
-            background: rgba(26,122,74,.08); border: 1px solid rgba(26,122,74,.3);
-            border-left: 4px solid var(--clr-ok); border-radius: 8px;
-            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            padding: 0.85rem 1.15rem;
+            border: 1px solid var(--clr-border);
         }
-        .erp-page-title {
-            display: flex; align-items: center; gap: 1rem;
-            margin-bottom: 1.5rem; padding-bottom: .75rem;
-            border-bottom: 1px solid var(--clr-border);
+
+        .erp-alert-danger {
+            background: rgba(185, 28, 28, 0.08);
+            border-left: 4px solid var(--clr-danger);
+            color: var(--clr-text);
         }
-        .erp-page-title h2 {
-            font-family: 'Playfair Display',serif;
-            font-size: 1.65rem; color: var(--clr-navy); margin: 0;
+
+        .erp-alert-info {
+            background: var(--clr-ice);
+            border-left: 4px solid var(--clr-sky);
+            color: var(--clr-text);
         }
-        [data-theme="dark"] .erp-page-title h2 { color: var(--clr-sky); }
+
+        .erp-alert-success {
+            background: rgba(21, 128, 61, 0.08);
+            border-left: 4px solid var(--clr-ok);
+            color: var(--clr-text);
+        }
+
+        /* Código */
         code, .mono {
-            font-family: 'JetBrains Mono',Consolas,monospace;
-            font-size: .85em; color: var(--clr-royal);
-            background: var(--clr-ice); padding: .15em .45em; border-radius: 4px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 0.84em;
+            color: var(--clr-royal);
+            background: var(--clr-ice);
+            padding: 0.15em 0.45em;
+            border-radius: 5px;
         }
+
         [data-theme="dark"] code,
         [data-theme="dark"] .mono {
-            color: var(--clr-sky); background: rgba(74,144,217,.12);
+            color: var(--clr-sky);
+            background: rgba(96, 165, 250, 0.12);
         }
+
+        /* Footer */
         .erp-footer {
-            background: var(--clr-navy); color: rgba(255,255,255,.65);
-            text-align: center; font-size: .8rem;
-            padding: 1rem; border-top: 2px solid var(--clr-gold);
-            letter-spacing: .02em;
+            background: var(--clr-navy);
+            color: rgba(255, 255, 255, 0.68);
+            text-align: center;
+            font-size: 0.82rem;
+            padding: 1.05rem 1rem;
+            border-top: 1px solid rgba(224, 184, 65, 0.35);
+            letter-spacing: 0.02em;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -252,17 +485,17 @@
 
 <body>
 <!-- NAVBAR -->
-<nav class="erp-navbar">
+<nav class="erp-navbar" aria-label="Navegación principal">
     <a class="erp-brand" href="/">
-        <img src="{% static 'img/gato_sufro.png' %}" alt="Ay, cómo sufro" class="erp-brand-logo">
-        Inventarios de flannyouyea
+        <img src="{% static 'img/gato_sufro.png' %}" alt="Gato sufriendo" class="erp-brand-logo">
+        <span>Inventarios de flannyouyea</span>
     </a>
     <div class="erp-nav-links">
         <a href="{% url 'catalogo:catalogo' %}" class="erp-nav-link {% block nav_catalogo %}{% endblock %}">
             🛒 Tienda
         </a>
         {% if carrito_total_items > 0 %}
-        <a href="{% url 'catalogo:carrito' %}" class="erp-nav-link" style="position:relative;">
+        <a href="{% url 'catalogo:carrito' %}" class="erp-nav-link">
             🛍️ ({{ carrito_total_items }})
         </a>
         {% endif %}
@@ -273,7 +506,7 @@
         <a href="{% url 'reportes:inicio' %}" class="erp-nav-link {% block nav_reportes %}{% endblock %}">Reportes</a>
         <a href="/admin/" class="erp-nav-link">Admin</a>
         {% if user.is_authenticated %}
-            <form method="post" action="{% url 'account_logout' %}" style="display:inline;">
+            <form method="post" action="{% url 'account_logout' %}" class="d-inline">
                 {% csrf_token %}
                 <button type="submit" class="erp-nav-link">
                     Salir ({{ user.username }})
@@ -282,7 +515,7 @@
         {% else %}
             <a href="{% url 'account_login' %}" class="erp-nav-link">Entrar</a>
         {% endif %}
-        <button class="theme-toggle" id="themeBtn" title="Modo claro/oscuro">🌙</button>
+        <button type="button" class="theme-toggle" id="themeBtn" title="Cambiar tema" aria-label="Cambiar entre modo claro y oscuro">🌙</button>
     </div>
 </nav>
 
@@ -292,7 +525,7 @@
     {% for m in messages %}
     <div class="erp-alert-{% if m.tags == 'error' %}danger{% elif m.tags == 'success' %}success{% else %}info{% endif %} d-flex justify-content-between align-items-center mb-2" role="alert">
         <span>{{ m }}</span>
-        <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:inherit;">×</button>
+        <button type="button" onclick="this.parentElement.remove()" aria-label="Cerrar mensaje" style="background:none;border:none;cursor:pointer;font-size:1.15rem;line-height:1;color:inherit;padding:0 0.25rem;">×</button>
     </div>
     {% endfor %}
 </div>
@@ -313,21 +546,23 @@
 </footer>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Toggle modo noche -->
 <script>
 (function () {
-    var btn  = document.getElementById('themeBtn');
-    var html = document.documentElement;
-    var icons = { light: '🌙', dark: '☀️' };
-    var saved = localStorage.getItem('erpTheme') || 'light';
+    const btn = document.getElementById('themeBtn');
+    const html = document.documentElement;
+    const icons = { light: '🌙', dark: '☀️' };
+    const saved = localStorage.getItem('erpTheme') || 'light';
+
     html.setAttribute('data-theme', saved);
-    if (btn) btn.textContent = icons[saved];
+    if (btn) btn.textContent = icons[saved] || '🌙';
+
     if (btn) {
         btn.addEventListener('click', function () {
-            var current = html.getAttribute('data-theme');
-            var next    = current === 'light' ? 'dark' : 'light';
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
             btn.textContent = icons[next];
             localStorage.setItem('erpTheme', next);
