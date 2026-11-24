@@ -12,6 +12,7 @@
         </h2>
         <p style="color:var(--clr-muted);margin-bottom:1.5rem;">
             Tu pedido ha sido registrado exitosamente.
+            Te enviaremos un correo de confirmación.
         </p>
 
         <div class="erp-card" style="background:var(--clr-ice);
@@ -43,12 +44,6 @@
             <a href="{% url 'catalogo:catalogo' %}" class="btn-erp-primary">
                 Seguir comprando
             </a>
-            {% if user.is_authenticated %}
-            <a href="{% url 'ventas:detalle' pedido.pk %}"
-               class="btn-erp-gold">
-                Ver detalle del pedido
-            </a>
-            {% endif %}
         </div>
     </div>
 </div>
