@@ -244,8 +244,17 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 # ── 14. Celery — Cola de tareas asíncronas ──────────────────────────────────
-CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = env('REDIS_URL', default='redis://localhost:6379/0')
+# En Render: define REDIS_URL en Environment con la Internal Connection URL
+# del Key Value. En local usa el valor por defecto (Redis en localhost).
+REDIS_URL = env('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
+# Arranque embebido de Celery dentro del servicio web (lo usa core/wsgi.py).
+# En Render: true/true y gunicorn con --workers 1.
+# En local (worker y beat en terminales aparte): déjalos en False.
+CELERY_EMBEDDED_WORKER = env.bool('CELERY_EMBEDDED_WORKER', default=False)
+CELERY_EMBEDDED_BEAT = env.bool('CELERY_EMBEDDED_BEAT', default=False)
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
