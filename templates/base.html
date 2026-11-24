@@ -116,18 +116,28 @@
             gap: 0.7rem;
         }
 
-        .erp-brand-logo {
-            width: 36px;
-            height: 36px;
+        .erp-brand-cat {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            object-fit: cover;
+            overflow: hidden;
             border: 1.5px solid var(--clr-gold);
-            background: var(--clr-surface);
+            background: var(--clr-ice);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
             transition: transform 0.25s ease;
         }
 
-        .erp-brand:hover .erp-brand-logo {
+        .erp-brand-cat svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .erp-brand:hover .erp-brand-cat {
             transform: scale(1.06) rotate(-3deg);
         }
 
@@ -472,6 +482,29 @@
             padding: 1.05rem 1rem;
             border-top: 1px solid rgba(224, 184, 65, 0.35);
             letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+
+        .erp-footer-cat {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid rgba(224, 184, 65, 0.55);
+            background: var(--clr-ice);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .erp-footer-cat svg {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -487,7 +520,35 @@
 <!-- NAVBAR -->
 <nav class="erp-navbar" aria-label="Navegación principal">
     <a class="erp-brand" href="/">
-        <img src="{% static 'img/gato_sufro.png' %}" alt="Gato sufriendo" class="erp-brand-logo">
+        <span class="erp-brand-cat" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+                <rect width="200" height="200" fill="#f8fafc"/>
+                <ellipse cx="100" cy="180" rx="65" ry="15" fill="#cbd5e1"/>
+                <polygon points="45,40 70,85 30,80" fill="#64748b"/>
+                <polygon points="48,45 65,82 35,78" fill="#f43f5e" opacity="0.6"/>
+                <polygon points="155,40 130,85 170,80" fill="#64748b"/>
+                <polygon points="152,45 135,82 165,78" fill="#f43f5e" opacity="0.6"/>
+                <ellipse cx="100" cy="115" rx="70" ry="60" fill="#94a3b8"/>
+                <path d="M 40 120 Q 100 60 160 120 Q 100 175 40 120 Z" fill="#cbd5e1"/>
+                <path d="M 90 60 L 100 75 L 110 60" stroke="#475569" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 75 65 L 85 78 L 92 68" stroke="#475569" stroke-width="3" fill="none"/>
+                <path d="M 125 65 L 115 78 L 108 68" stroke="#475569" stroke-width="3" fill="none"/>
+                <ellipse cx="75" cy="155" rx="18" ry="14" fill="#e2e8f0"/>
+                <ellipse cx="125" cy="155" rx="18" ry="14" fill="#e2e8f0"/>
+                <circle cx="70" cy="110" r="18" fill="#ffffff" stroke="#e11d48" stroke-width="3"/>
+                <circle cx="130" cy="110" r="18" fill="#ffffff" stroke="#e11d48" stroke-width="3"/>
+                <circle cx="70" cy="112" r="9" fill="#0f172a"/>
+                <circle cx="130" cy="112" r="9" fill="#0f172a"/>
+                <circle cx="73" cy="108" r="3" fill="#ffffff"/>
+                <circle cx="133" cy="108" r="3" fill="#ffffff"/>
+                <polygon points="95,122 105,122 100,128" fill="#f43f5e"/>
+                <ellipse cx="100" cy="142" rx="16" ry="14" fill="#991b1b"/>
+                <path d="M 90 138 Q 100 132 110 138 Q 100 155 90 138" fill="#ef4444"/>
+                <path d="M 88 135 Q 100 148 112 135" stroke="#450a0a" stroke-width="2" fill="none"/>
+                <path d="M 68 122 Q 62 145 66 170 M 132 122 Q 138 145 134 170" stroke="#38bdf8" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85"/>
+                <path d="M 72 124 Q 75 145 72 165 M 128 124 Q 125 145 128 165" stroke="#7dd3fc" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+        </span>
         <span>Inventarios de flannyouyea</span>
     </a>
     <div class="erp-nav-links">
@@ -542,7 +603,36 @@
 
 <!-- FOOTER -->
 <footer class="erp-footer">
-    Inventarios de flannyouyea · Sistema de Gestión Empresarial
+    <span class="erp-footer-cat" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+            <rect width="200" height="200" fill="#f8fafc"/>
+            <ellipse cx="100" cy="180" rx="65" ry="15" fill="#cbd5e1"/>
+            <polygon points="45,40 70,85 30,80" fill="#64748b"/>
+            <polygon points="48,45 65,82 35,78" fill="#f43f5e" opacity="0.6"/>
+            <polygon points="155,40 130,85 170,80" fill="#64748b"/>
+            <polygon points="152,45 135,82 165,78" fill="#f43f5e" opacity="0.6"/>
+            <ellipse cx="100" cy="115" rx="70" ry="60" fill="#94a3b8"/>
+            <path d="M 40 120 Q 100 60 160 120 Q 100 175 40 120 Z" fill="#cbd5e1"/>
+            <path d="M 90 60 L 100 75 L 110 60" stroke="#475569" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M 75 65 L 85 78 L 92 68" stroke="#475569" stroke-width="3" fill="none"/>
+            <path d="M 125 65 L 115 78 L 108 68" stroke="#475569" stroke-width="3" fill="none"/>
+            <ellipse cx="75" cy="155" rx="18" ry="14" fill="#e2e8f0"/>
+            <ellipse cx="125" cy="155" rx="18" ry="14" fill="#e2e8f0"/>
+            <circle cx="70" cy="110" r="18" fill="#ffffff" stroke="#e11d48" stroke-width="3"/>
+            <circle cx="130" cy="110" r="18" fill="#ffffff" stroke="#e11d48" stroke-width="3"/>
+            <circle cx="70" cy="112" r="9" fill="#0f172a"/>
+            <circle cx="130" cy="112" r="9" fill="#0f172a"/>
+            <circle cx="73" cy="108" r="3" fill="#ffffff"/>
+            <circle cx="133" cy="108" r="3" fill="#ffffff"/>
+            <polygon points="95,122 105,122 100,128" fill="#f43f5e"/>
+            <ellipse cx="100" cy="142" rx="16" ry="14" fill="#991b1b"/>
+            <path d="M 90 138 Q 100 132 110 138 Q 100 155 90 138" fill="#ef4444"/>
+            <path d="M 88 135 Q 100 148 112 135" stroke="#450a0a" stroke-width="2" fill="none"/>
+            <path d="M 68 122 Q 62 145 66 170 M 132 122 Q 138 145 134 170" stroke="#38bdf8" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85"/>
+            <path d="M 72 124 Q 75 145 72 165 M 128 124 Q 125 145 128 165" stroke="#7dd3fc" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+    </span>
+    <span>Inventarios de flannyouyea · Sistema de Gestión Empresarial</span>
 </footer>
 
 <!-- Bootstrap JS -->
