@@ -1,9 +1,14 @@
 # core/settings.py
-"""Configuración principal del proyecto ERP Django — W01 a W15."""
+"""Configuración principal del proyecto ERP Django — W01 a W18."""
+
 import os
-from pathlib import Path
-import environ
 import sys
+from datetime import timedelta
+from pathlib import Path
+
+import environ
+from celery.schedules import crontab
+
 # ── 1. Directorio Base ──────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -36,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'whitenoise.runserver_nostatic',
+    'anymail',
 
     # Apps del ERP
     'clientes',
@@ -45,7 +51,6 @@ INSTALLED_APPS = [
     'reportes',
     'configuracion',
     'catalogo',
-     'anymail',
 ]
 
 # ── 4. Middlewares ──────────────────────────────────────────────────────────
@@ -84,7 +89,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# ── 6. Base de Datos (sqlite3 en local / PostgreSQL en producción via settings_prod.py)
+# ── 6. Base de Datos ────────────────────────────────────────────────────────
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -148,12 +153,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# ── 12. Configuración de Stripe (Protegida contra NoneType y espacios) ────
+# ── 12. Configuración de Stripe ─────────────────────────────────────────────
 STRIPE_SECRET_KEY = (os.getenv('STRIPE_SECRET_KEY') or env('STRIPE_SECRET_KEY', default='sk_test_placeholder')).strip()
 STRIPE_PUBLISHABLE_KEY = (os.getenv('STRIPE_PUBLISHABLE_KEY') or env('STRIPE_PUBLISHABLE_KEY', default='pk_test_placeholder')).strip()
 STRIPE_WEBHOOK_SECRET = (os.getenv('STRIPE_WEBHOOK_SECRET') or env('STRIPE_WEBHOOK_SECRET', default='whsec_placeholder')).strip()
 
-# ── 13. Tema Jazzmin (Fable 5 AzulERP) ─────────────────────────────────────
+# ── 13. Tema Jazzmin ────────────────────────────────────────────────────────
 JAZZMIN_SETTINGS = {
     'site_title': 'ERP Django',
     'site_header': 'ERP UTEC Celaya',
@@ -237,54 +242,58 @@ JAZZMIN_UI_TWEAKS = {
         'success': 'btn-success',
     },
 }
-# ── CELERY — Cola de tareas asíncronas ────────────────────────────────────
-CELERY_BROKER_URL        = env('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND    = env('REDIS_URL', default='redis://localhost:6379/0')
 
-CELERY_ACCEPT_CONTENT    = ['json']
-CELERY_TASK_SERIALIZER   = 'json'
+# ── 14. Celery — Cola de tareas asíncronas ──────────────────────────────────
+CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = env('REDIS_URL', default='redis://localhost:6379/0')
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-CELERY_TIMEZONE = TIME_ZONE   # 'America/Mexico_City'
+CELERY_TIMEZONE = TIME_ZONE  # 'America/Mexico_City'
 
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-CELERY_TASK_SOFT_TIME_LIMIT = 300   # 5 minutos
-CELERY_TASK_TIME_LIMIT       = 360  # 6 minutos (límite duro)
+CELERY_TASK_SOFT_TIME_LIMIT = 300  # 5 minutos
+CELERY_TASK_TIME_LIMIT = 360  # 6 minutos (límite duro)
 
 CELERY_TASK_DEFAULT_QUEUE = 'erp_django'
 
 # Para tests: se activa con @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-CELERY_TASK_ALWAYS_EAGER     = 'test' in sys.argv
+CELERY_TASK_ALWAYS_EAGER = 'test' in sys.argv
 CELERY_TASK_EAGER_PROPAGATES = True
-EMAIL_BACKEND = env(
-    'EMAIL_BACKEND',
-    default='django.core.mail.backends.console.EmailBackend'
-)
 
-DEFAULT_FROM_EMAIL = env(
-    'DEFAULT_FROM_EMAIL',
-    default='ERP Django <noreply@erp-django.com>'
-)
-
+# ── 15. Correo Electrónico y SendGrid (W17) ─────────────────────────────────
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ERP Django <noreply@erp-django.com>')
 EMAIL_SUBJECT_PREFIX = '[ERP Django] '
 
-# Administradores que reciben las alertas del sistema
+ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@erp-django.com')
 ADMINS = [
-    ('Admin ERP', env('ADMIN_EMAIL', default='admin@erp-django.com')),
+    ('Admin ERP', ADMIN_EMAIL),
 ]
 
 SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
 ANYMAIL = {
     'SENDGRID_API_KEY': SENDGRID_API_KEY,
 }
-# ── CORREO ELECTRÓNICO (W17) ────────────────────────────────────────────────
-EMAIL_BACKEND = env(
-    'EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend'
-)
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@erp.local')
-ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@erp.local')
 
-ANYMAIL = {
-    "SENDGRID_API_KEY": env('SENDGRID_API_KEY', default=''),
+# ── 16. Celery Beat — Tareas programadas (W18) ──────────────────────────────
+CELERY_BEAT_SCHEDULE = {
+    # Verificar stock bajo cada hora
+    'verificar-stock-bajo-cada-hora': {
+        'task': 'ventas.verificar_stock_bajo',
+        'schedule': timedelta(hours=1),
+        'args': (5,),  # umbral = 5 unidades
+        'options': {'queue': 'erp_django'},
+    },
+    # Reporte de ventas diario a las 8:00 AM (hora local)
+    'reporte-ventas-diario-8am': {
+        'task': 'ventas.reporte_ventas_diario',
+        'schedule': crontab(hour=8, minute=0),
+        'options': {'queue': 'erp_django'},
+    },
 }
+
+CELERY_BEAT_TIMEZONE = TIME_ZONE  # 'America/Mexico_City'
