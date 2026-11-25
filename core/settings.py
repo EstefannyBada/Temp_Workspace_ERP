@@ -287,6 +287,8 @@ EMAIL_BACKEND = env(
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ERP Django <noreply@erp-django.com>')
 EMAIL_SUBJECT_PREFIX = '[ERP Django] '
 
+# Destino del reporte de ventas y de la alerta de stock.
+# En Render DEBE definirse ADMIN_EMAIL con tu correo real.
 ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@erp-django.com')
 ADMINS = [
     ('Admin ERP', ADMIN_EMAIL),
@@ -299,18 +301,20 @@ ANYMAIL = {
 # ── 16. Celery Beat — Tareas programadas (W18) ──────────────────────────────
 CELERY_BEAT_SCHEDULE = {
     # Verificar stock bajo cada hora
+    # (para PROBAR cambia timedelta(hours=1) por timedelta(minutes=2))
     'verificar-stock-bajo-cada-hora': {
         'task': 'ventas.verificar_stock_bajo',
         'schedule': timedelta(hours=1),
         'args': (5,),  # umbral = 5 unidades
         'options': {'queue': 'erp_django'},
     },
-    # Reporte de ventas diario a las 8:00 AM (hora local)
+    # Reporte de ventas diario
+    # MODO PRUEBA: cada 2 minutos.
+    # Cuando confirmes que llega a tu correo, REGRESA a:
+    #   'schedule': crontab(hour=8, minute=0),
     'reporte-ventas-diario-8am': {
         'task': 'ventas.reporte_ventas_diario',
-        'schedule': crontab(hour=8, minute=0),
-        # Para PROBAR, cambia temporalmente la línea de arriba por:
-        # 'schedule': crontab(minute='*/2'),
+        'schedule': crontab(minute='*/2'),
         'options': {'queue': 'erp_django'},
     },
 }
