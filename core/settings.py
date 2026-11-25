@@ -299,22 +299,35 @@ ANYMAIL = {
 }
 
 # ── 16. Celery Beat — Tareas programadas (W18) ──────────────────────────────
+# Hora del reporte diario (formato 24 h, hora de México).
+# Se pueden definir REPORTE_HORA y REPORTE_MINUTO en Render → Environment.
+REPORTE_HORA = env.int('REPORTE_HORA', default=8)
+REPORTE_MINUTO = env.int('REPORTE_MINUTO', default=0)
+
+# MODO PRUEBA: si en Render defines MODO_PRUEBA_CORREOS=true, el reporte y la
+# alerta de stock se envían cada 2 minutos. Cuando termines, bórrala o ponla
+# en false.
+MODO_PRUEBA_CORREOS = env.bool('MODO_PRUEBA_CORREOS', default=False)
+
+if MODO_PRUEBA_CORREOS:
+    _schedule_stock = timedelta(minutes=2)
+    _schedule_reporte = crontab(minute='*/2')
+else:
+    _schedule_stock = timedelta(hours=1)
+    _schedule_reporte = crontab(hour=REPORTE_HORA, minute=REPORTE_MINUTO)
+
 CELERY_BEAT_SCHEDULE = {
-    # Verificar stock bajo cada hora
-    # (para PROBAR cambia timedelta(hours=1) por timedelta(minutes=2))
-    'verificar-stock-bajo-cada-hora': {
+    # Verificar stock bajo (cada hora; cada 2 min en modo prueba)
+    'verificar-stock-bajo': {
         'task': 'ventas.verificar_stock_bajo',
-        'schedule': timedelta(hours=1),
+        'schedule': _schedule_stock,
         'args': (5,),  # umbral = 5 unidades
         'options': {'queue': 'erp_django'},
     },
-    # Reporte de ventas diario
-    # MODO PRUEBA: cada 2 minutos.
-    # Cuando confirmes que llega a tu correo, REGRESA a:
-    #   'schedule': crontab(hour=8, minute=0),
-    'reporte-ventas-diario-8am': {
+    # Reporte de ventas diario (a la hora definida; cada 2 min en modo prueba)
+    'reporte-ventas-diario': {
         'task': 'ventas.reporte_ventas_diario',
-        'schedule': crontab(minute='*/2'),
+        'schedule': _schedule_reporte,
         'options': {'queue': 'erp_django'},
     },
 }
