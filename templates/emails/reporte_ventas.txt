@@ -1,0 +1,17 @@
+{% autoescape off %}{{ config.nombre_empresa }}
+REPORTE DE VENTAS DEL {{ fecha }}
+========================================
+
+Pedidos pagados del día: {{ total_pedidos }}
+Total facturado: ${{ total_facturado|floatformat:2 }}
+
+PRODUCTOS MÁS VENDIDOS DEL DÍA
+----------------------------------------
+{% for p in top_productos %}{{ forloop.counter }}. {{ p.nombre }} — {{ p.unidades }} unidad(es) — ${{ p.ingreso|floatformat:2 }}
+{% empty %}Sin ventas registradas hoy.
+{% endfor %}
+Ver detalle en el panel: {{ url_admin }}
+
+--
+Mensaje automático del ERP. No respondas a este correo.
+{% endautoescape %}
