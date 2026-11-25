@@ -274,7 +274,16 @@ CELERY_TASK_ALWAYS_EAGER = 'test' in sys.argv
 CELERY_TASK_EAGER_PROPAGATES = True
 
 # ── 15. Correo Electrónico y SendGrid (W17) ─────────────────────────────────
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
+
+# Si hay API key de SendGrid se usa SendGrid; si no, los correos salen en consola.
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND',
+    default=(
+        'anymail.backends.sendgrid.EmailBackend' if SENDGRID_API_KEY
+        else 'django.core.mail.backends.console.EmailBackend'
+    ),
+)
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ERP Django <noreply@erp-django.com>')
 EMAIL_SUBJECT_PREFIX = '[ERP Django] '
 
@@ -283,7 +292,6 @@ ADMINS = [
     ('Admin ERP', ADMIN_EMAIL),
 ]
 
-SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
 ANYMAIL = {
     'SENDGRID_API_KEY': SENDGRID_API_KEY,
 }
@@ -301,6 +309,8 @@ CELERY_BEAT_SCHEDULE = {
     'reporte-ventas-diario-8am': {
         'task': 'ventas.reporte_ventas_diario',
         'schedule': crontab(hour=8, minute=0),
+        # Para PROBAR, cambia temporalmente la línea de arriba por:
+        # 'schedule': crontab(minute='*/2'),
         'options': {'queue': 'erp_django'},
     },
 }
